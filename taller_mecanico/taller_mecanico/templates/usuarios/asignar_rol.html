@@ -1,0 +1,27 @@
+<!-- usuarios/templates/usuarios/asignar_rol.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Asignar Rol - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0">Asignar Rol a Usuario</h2>
+            </div>
+            <div class="card-body">
+                <h4>Usuario: {{ usuario.username }} ({{ usuario.get_full_name|default:usuario.username }})</h4>
+                <hr>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button class="btn btn-info" type="submit">Asignar</button>
+                    <a href="{% url 'lista_usuarios' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

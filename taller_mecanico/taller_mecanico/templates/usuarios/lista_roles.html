@@ -1,0 +1,39 @@
+<!-- usuarios/templates/usuarios/lista_roles.html -->
+{% extends "base.html" %}
+
+{% block title %}Roles - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Roles del Sistema</h2>
+        <a href="{% url 'crear_rol' %}" class="btn btn-success">Nuevo Rol</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rol in roles %}
+                    <tr>
+                        <td>{{ rol.id }}</td>
+                        <td>{{ rol.nombre }}</td>
+                        <td>{{ rol.descripcion|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="3" class="text-center">No hay roles registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

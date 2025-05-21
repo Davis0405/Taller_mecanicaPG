@@ -1,0 +1,14 @@
+<!-- usuarios/templates/usuarios/logout.html -->
+{% extends "base.html" %}
+
+{% block title %}Cerrar Sesión - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body text-center">
+        <h2>Has cerrado sesión</h2>
+        <p>Gracias por tu visita</p>
+        <a href="{% url 'login' %}" class="btn btn-outline-primary">Iniciar Sesión Nuevamente</a>
+    </div>
+</div>
+{% endblock %}

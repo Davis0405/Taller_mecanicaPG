@@ -1,0 +1,31 @@
+<!-- usuarios/templates/usuarios/profile.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Perfil - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0">Perfil de Usuario</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Información de Cuenta</legend>
+                        {{ u_form|crispy }}
+                    </fieldset>
+                    <fieldset class="form-group">
+                        <legend class="border-bottom mb-4">Información Adicional</legend>
+                        {{ p_form|crispy }}
+                    </fieldset>
+                    <button class="btn btn-info" type="submit">Actualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

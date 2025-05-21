@@ -1,0 +1,29 @@
+<!-- usuarios/templates/usuarios/login.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Iniciar Sesión - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Iniciar Sesión</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button class="btn btn-primary btn-block" type="submit">Iniciar Sesión</button>
+                </form>
+                <div class="border-top pt-3">
+                    <small class="text-muted">
+                        ¿Necesitas una cuenta? <a href="{% url 'register' %}">Registrarse</a>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
