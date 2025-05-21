@@ -8,9 +8,15 @@ from .models import Rol, Perfil
 from django.contrib.auth.decorators import user_passes_test
 
 def es_admin(user):
+    if not user.is_authenticated:
+        return False
+    # Los superusuarios siempre son considerados administradores
+    if user.is_superuser:
+        return True
     try:
-        return user.perfil.rol.nombre == 'Administrador'
-    except:
+        perfil = Perfil.objects.get(usuario=user)
+        return perfil.rol and perfil.rol.nombre == 'Administrador'
+    except (Perfil.DoesNotExist, AttributeError):
         return False
 
 def register(request):
@@ -94,4 +100,68 @@ def asignar_rol(request, user_id):
 
 @login_required
 def dashboard(request):
-    return render(request, 'usuarios/dashboard.html')
+    # Verificar y crear el perfil si no existe
+    Perfil.objects.get_or_create(usuario=request.user)
+    
+    context = {
+        'title': 'Dashboard',
+    }
+    return render(request, 'usuarios/dashboard.html', context)
+
+@login_required
+def lista_roles(request):
+    # Verificar si el usuario es administrador
+    if not es_admin(request.user):
+        messages.error(request, 'No tienes permisos para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    roles = Rol.objects.all()
+    return render(request, 'usuarios/lista_roles.html', {'roles': roles})
+
+@login_required
+def crear_rol(request):
+    # Verificar si el usuario es administrador
+    if not es_admin(request.user):
+        messages.error(request, 'No tienes permisos para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        form = RolForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Rol creado exitosamente!')
+            return redirect('lista_roles')
+    else:
+        form = RolForm()
+    return render(request, 'usuarios/rol_form.html', {'form': form})
+
+@login_required
+def lista_usuarios(request):
+    # Verificar si el usuario es administrador
+    if not es_admin(request.user):
+        messages.error(request, 'No tienes permisos para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    usuarios = User.objects.all()
+    return render(request, 'usuarios/lista_usuarios.html', {'usuarios': usuarios})
+
+@login_required
+def asignar_rol(request, user_id):
+    # Verificar si el usuario es administrador
+    if not es_admin(request.user):
+        messages.error(request, 'No tienes permisos para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    usuario = get_object_or_404(User, id=user_id)
+    perfil, created = Perfil.objects.get_or_create(usuario=usuario)
+    
+    if request.method == 'POST':
+        form = AsignarRolForm(request.POST, instance=perfil)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Rol asignado a {usuario.username} correctamente!')
+            return redirect('lista_usuarios')
+    else:
+        form = AsignarRolForm(instance=perfil)
+    
+    return render(request, 'usuarios/asignar_rol.html', {'form': form, 'usuario': usuario})

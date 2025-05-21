@@ -39,31 +39,34 @@
                     {% endif %}
                 </ul>
                 <ul class="navbar-nav">
-                    {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
-                                Administración
-                            </a>
-                            <div class="dropdown-menu">
-                                <a class="dropdown-item" href="{% url 'lista_usuarios' %}">Usuarios</a>
-                                <a class="dropdown-item" href="{% url 'lista_roles' %}">Roles</a>
-                            </div>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-                        </li>
-                    {% endif %}
-                </ul>
+                    <ul class="navbar-nav">
+    {% if user.is_authenticated %}
+        {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
+                Administración
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'lista_usuarios' %}">Usuarios</a>
+                <a class="dropdown-item" href="{% url 'lista_roles' %}">Roles</a>
+            </div>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+        </li>
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+        </li>
+    {% endif %}
+</ul>
             </div>
         </div>
     </nav>
