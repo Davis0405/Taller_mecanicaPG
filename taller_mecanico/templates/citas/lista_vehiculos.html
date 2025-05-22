@@ -1,0 +1,50 @@
+<!-- citas/templates/citas/lista_vehiculos.html -->
+{% extends "base.html" %}
+
+{% block title %}Mis Vehículos - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Mis Vehículos</h2>
+        <a href="{% url 'agregar_vehiculo' %}" class="btn btn-success">Agregar Vehículo</a>
+    </div>
+    <div class="card-body">
+        {% if vehiculos %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Año</th>
+                            <th>Placa</th>
+                            <th>Color</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for vehiculo in vehiculos %}
+                        <tr>
+                            <td>{{ vehiculo.marca }}</td>
+                            <td>{{ vehiculo.modelo }}</td>
+                            <td>{{ vehiculo.año }}</td>
+                            <td>{{ vehiculo.placa }}</td>
+                            <td>{{ vehiculo.color }}</td>
+                            <td>
+                                <a href="{% url 'editar_vehiculo' vehiculo.id %}" class="btn btn-sm btn-info">Editar</a>
+                                <a href="{% url 'eliminar_vehiculo' vehiculo.id %}" class="btn btn-sm btn-danger">Eliminar</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No tienes vehículos registrados. <a href="{% url 'agregar_vehiculo' %}">Agrega uno ahora</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

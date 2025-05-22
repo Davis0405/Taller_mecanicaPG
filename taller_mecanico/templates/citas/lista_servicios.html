@@ -1,0 +1,88 @@
+<!-- citas/templates/citas/lista_servicios.html -->
+{% extends "base.html" %}
+
+{% block title %}Servicios - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Servicios</h2>
+        <a href="{% url 'agregar_servicio' %}" class="btn btn-success">Nuevo Servicio</a>
+    </div>
+    <div class="card-body">
+        <!-- Filtro por categoría -->
+        <div class="mb-3">
+            <div class="btn-group" role="group" aria-label="Filtro de categorías">
+                <button type="button" class="btn btn-outline-primary active" data-filter="all">Todos</button>
+                <button type="button" class="btn btn-outline-primary" data-filter="MECANICO">Mecánicos</button>
+                <button type="button" class="btn btn-outline-primary" data-filter="CARWASH">Carwash</button>
+            </div>
+        </div>
+        
+        <!-- Tabla de servicios -->
+        <div class="table-responsive">
+            <table class="table table-hover" id="serviciosTable">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Categoría</th>
+                        <th>Duración (min)</th>
+                        <th>Precio</th>
+                        <th>Descripción</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for servicio in servicios %}
+                    <tr data-categoria="{{ servicio.categoria }}">
+                        <td>{{ servicio.nombre }}</td>
+                        <td>{{ servicio.get_categoria_display }}</td>
+                        <td>{{ servicio.duracion }}</td>
+                        <td>${{ servicio.precio }}</td>
+                        <td>{{ servicio.descripcion|truncatechars:50|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'editar_servicio' servicio.id %}" class="btn btn-sm btn-info">Editar</a>
+                            <a href="{% url 'eliminar_servicio' servicio.id %}" class="btn btn-sm btn-danger">Eliminar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No hay servicios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filtro de categorías
+        const btnsFilter = document.querySelectorAll('[data-filter]');
+        const tableRows = document.querySelectorAll('#serviciosTable tbody tr');
+        
+        btnsFilter.forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from all buttons
+                btnsFilter.forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const filter = this.getAttribute('data-filter');
+                
+                // Filter table rows
+                tableRows.forEach(row => {
+                    if (filter === 'all' || row.getAttribute('data-categoria') === filter) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

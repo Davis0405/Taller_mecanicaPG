@@ -1,0 +1,67 @@
+<!-- citas/templates/citas/gestionar_cita.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Gestionar Cita - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">Gestionar Cita #{{ cita.id }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h4>Información de la Cita</h4>
+                        <table class="table">
+                            <tr>
+                                <th>Cliente:</th>
+                                <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Servicio:</th>
+                                <td>{{ cita.servicio.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha:</th>
+                                <td>{{ cita.fecha }}</td>
+                            </tr>
+                            <tr>
+                                <th>Hora:</th>
+                                <td>{{ cita.hora_inicio }} a {{ cita.hora_fin }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Vehículo</h4>
+                        <table class="table">
+                            <tr>
+                                <th>Marca:</th>
+                                <td>{{ cita.vehiculo.marca }}</td>
+                            </tr>
+                            <tr>
+                                <th>Modelo:</th>
+                                <td>{{ cita.vehiculo.modelo }}</td>
+                            </tr>
+                            <tr>
+                                <th>Placa:</th>
+                                <td>{{ cita.vehiculo.placa }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <h4>Actualizar Estado</h4>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <a href="{% url 'calendario_citas' %}" class="btn btn-outline-secondary">Volver al Calendario</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

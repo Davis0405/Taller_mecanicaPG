@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'usuarios',
+    'citas',
     'crispy_forms',
     'crispy_bootstrap4',
 ]
@@ -141,3 +142,11 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # Para desarrollo
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # Para producción
+EMAIL_HOST = 'smtp.gmail.com'  # Cambiar según el proveedor
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'fixfastpro@gmail.com'  # Cambiar por tu correo
+EMAIL_HOST_PASSWORD = 'ijurgqzfdnemrbci'  # Cambiar por tu contrase

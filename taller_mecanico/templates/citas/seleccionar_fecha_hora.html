@@ -1,0 +1,27 @@
+<!-- citas/templates/citas/seleccionar_fecha_hora.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Nueva Cita - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">Agendar Nueva Cita - Paso 1</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Selecciona la fecha y el tipo de servicio para tu cita:</p>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-success">Continuar</button>
+                    <a href="{% url 'mis_citas' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

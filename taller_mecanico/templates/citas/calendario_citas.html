@@ -1,0 +1,88 @@
+<!-- citas/templates/citas/calendario_citas.html -->
+{% extends "base.html" %}
+
+{% block title %}Calendario de Citas - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">Calendario de Citas</h2>
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="fecha">Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_filtro }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" name="categoria" class="form-control">
+                            <option value="">Todas</option>
+                            <option value="MECANICO" {% if categoria_filtro == 'MECANICO' %}selected{% endif %}>Servicio Mecánico</option>
+                            <option value="CARWASH" {% if categoria_filtro == 'CARWASH' %}selected{% endif %}>Servicio de Lavado</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Filtrar</button>
+                    <a href="{% url 'calendario_citas' %}" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Tabla de citas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Vehículo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.fecha }}</td>
+                        <td>{{ cita.hora_inicio }} - {{ cita.hora_fin }}</td>
+                        <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
+                        <td>{{ cita.servicio.nombre }}</td>
+                        <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
+                        <td>
+                            {% if cita.estado == 'PENDIENTE' %}
+                                <span class="badge badge-warning">Pendiente</span>
+                            {% elif cita.estado == 'CONFIRMADA' %}
+                                <span class="badge badge-info">Confirmada</span>
+                            {% elif cita.estado == 'COMPLETADA' %}
+                                <span class="badge badge-success">Completada</span>
+                            {% elif cita.estado == 'CANCELADA' %}
+                                <span class="badge badge-danger">Cancelada</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                            {% if cita.estado != 'CANCELADA' %}
+                                <a href="{% url 'gestionar_cita' cita.id %}" class="btn btn-sm btn-primary">Gestionar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay citas para mostrar con los filtros seleccionados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,151 @@
+<!-- citas/templates/citas/mis_citas.html -->
+{% extends "base.html" %}
+
+{% block title %}Mis Citas - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Mis Citas</h2>
+        <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-success">Nueva Cita</a>
+    </div>
+    <div class="card-body">
+        {% if citas %}
+            <ul class="nav nav-tabs mb-3" id="citasTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="proximas-tab" data-toggle="tab" href="#proximas" role="tab">Próximas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="completadas-tab" data-toggle="tab" href="#completadas" role="tab">Completadas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="canceladas-tab" data-toggle="tab" href="#canceladas" role="tab">Canceladas</a>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="citasTabsContent">
+                <!-- Próximas citas -->
+                <div class="tab-pane fade show active" id="proximas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Vehículo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'PENDIENTE' or cita.estado == 'CONFIRMADA' %}
+                                    <tr>
+                                        <td>{{ cita.fecha }}</td>
+                                        <td>{{ cita.hora_inicio }}</td>
+                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
+                                        <td>
+                                            {% if cita.estado == 'PENDIENTE' %}
+                                                <span class="badge badge-warning">Pendiente</span>
+                                            {% elif cita.estado == 'CONFIRMADA' %}
+                                                <span class="badge badge-info">Confirmada</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                            <a href="{% url 'cancelar_cita' cita.id %}" class="btn btn-sm btn-danger">Cancelar</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">No tienes citas próximas.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Citas completadas -->
+                <div class="tab-pane fade" id="completadas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Vehículo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'COMPLETADA' %}
+                                    <tr>
+                                        <td>{{ cita.fecha }}</td>
+                                        <td>{{ cita.hora_inicio }}</td>
+                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
+                                        <td>
+                                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No tienes citas completadas.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Citas canceladas -->
+                <div class="tab-pane fade" id="canceladas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Servicio</th>
+                                    <th>Vehículo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'CANCELADA' %}
+                                    <tr>
+                                        <td>{{ cita.fecha }}</td>
+                                        <td>{{ cita.hora_inicio }}</td>
+                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
+                                        <td>
+                                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center">No tienes citas canceladas.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No tienes citas registradas. <a href="{% url 'seleccionar_fecha_hora' %}">Agenda una ahora</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

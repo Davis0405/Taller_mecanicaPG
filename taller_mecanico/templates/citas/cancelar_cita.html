@@ -1,0 +1,32 @@
+<!-- citas/templates/citas/cancelar_cita.html -->
+{% extends "base.html" %}
+
+{% block title %}Cancelar Cita - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Cancelar Cita</h2>
+            </div>
+            <div class="card-body">
+                <p>¿Estás seguro de que deseas cancelar la siguiente cita?</p>
+                
+                <div class="alert alert-warning">
+                    <strong>Servicio:</strong> {{ cita.servicio.nombre }}<br>
+                    <strong>Fecha:</strong> {{ cita.fecha }}<br>
+                    <strong>Hora:</strong> {{ cita.hora_inicio }}<br>
+                    <strong>Vehículo:</strong> {{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, Cancelar Cita</button>
+                    <a href="{% url 'mis_citas' %}" class="btn btn-outline-secondary">No, Volver</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -52,6 +52,30 @@
             </div>
         </li>
         {% endif %}
+        <ul class="navbar-nav mr-auto">
+        {% if user.is_authenticated %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+        </li>
+        <!-- Enlaces a módulo de citas -->
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="citasDropdown" role="button" data-toggle="dropdown">
+                Citas
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'mis_citas' %}">Mis Citas</a>
+                <a class="dropdown-item" href="{% url 'seleccionar_fecha_hora' %}">Nueva Cita</a>
+                <a class="dropdown-item" href="{% url 'lista_vehiculos' %}">Mis Vehículos</a>
+                
+                {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'calendario_citas' %}">Calendario de Citas</a>
+                <a class="dropdown-item" href="{% url 'lista_servicios' %}">Gestión de Servicios</a>
+                {% endif %}
+            </div>
+        </li>
+        {% endif %}
+    </ul>
         <li class="nav-item">
             <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
         </li>

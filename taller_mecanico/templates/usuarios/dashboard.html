@@ -8,11 +8,13 @@
     <h1 class="display-4">Bienvenido, {{ user.first_name|default:user.username }}!</h1>
     <p class="lead">Sistema de Gestión de Taller Mecánico y Carwash</p>
     <hr class="my-4">
-    <p>Selecciona una opción del menú para empezar a trabajar.</p>
+    <p>Selecciona una opción del menú o utiliza los accesos rápidos a continuación.</p>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
+    <!-- Tarjeta para Gestión de Usuarios (solo para admin) -->
+    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+    <div class="col-md-4 mb-4">
         <div class="card">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0">Gestión de Usuarios</h5>
@@ -23,5 +25,63 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    
+    <!-- Tarjeta para Mis Citas -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Mis Citas</h5>
+            </div>
+            <div class="card-body">
+                <p>Revisa tus citas agendadas o agenda una nueva.</p>
+                <a href="{% url 'mis_citas' %}" class="btn btn-outline-success">Ver Mis Citas</a>
+                <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-outline-success">Nueva Cita</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta para Mis Vehículos -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Mis Vehículos</h5>
+            </div>
+            <div class="card-body">
+                <p>Administra la información de tus vehículos.</p>
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-outline-info">Ver Vehículos</a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tarjeta para Calendario de Citas (solo para staff) -->
+    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' or user.perfil.rol.nombre == 'Mecánico' %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Calendario de Citas</h5>
+            </div>
+            <div class="card-body">
+                <p>Visualiza y gestiona todas las citas.</p>
+                <a href="{% url 'calendario_citas' %}" class="btn btn-outline-warning">Ver Calendario</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Tarjeta para Gestión de Servicios (solo para admin y recepcionista) -->
+    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Gestión de Servicios</h5>
+            </div>
+            <div class="card-body">
+                <p>Administra los tipos de servicios ofrecidos.</p>
+                <a href="{% url 'lista_servicios' %}" class="btn btn-outline-secondary">Ver Servicios</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,36 @@
+<!-- citas/templates/citas/eliminar_servicio.html -->
+{% extends "base.html" %}
+
+{% block title %}Eliminar Servicio - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h2 class="mb-0">Eliminar Servicio</h2>
+            </div>
+            <div class="card-body">
+                <p>¿Estás seguro de que deseas eliminar el siguiente servicio?</p>
+                
+                <div class="alert alert-warning">
+                    <strong>{{ servicio.nombre }}</strong><br>
+                    Categoría: {{ servicio.get_categoria_display }}<br>
+                    Precio: ${{ servicio.precio }}<br>
+                    Duración: {{ servicio.duracion }} minutos
+                </div>
+                
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Advertencia: Esta acción no se puede deshacer. Si hay citas asociadas a este servicio, podrían verse afectadas.
+                </div>
+                
+                <form method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                    <a href="{% url 'lista_servicios' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

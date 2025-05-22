@@ -1,0 +1,91 @@
+<!-- citas/templates/citas/nueva_cita.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Agendar Cita - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">Agendar Nueva Cita - Paso 2</h2>
+            </div>
+            <div class="card-body">
+                <p class="lead">Completa los detalles de tu cita:</p>
+                
+                <div class="alert alert-info">
+                    <strong>Fecha seleccionada:</strong> {{ fecha|date:"l d F Y" }}<br>
+                    <strong>Tipo de servicio:</strong> {{ categoria }}
+                </div>
+                
+                {% if not form.vehiculo.field.queryset %}
+                <div class="alert alert-warning">
+                    No tienes vehículos registrados. <a href="{% url 'agregar_vehiculo' %}">Agrega uno</a> antes de continuar.
+                </div>
+                {% endif %}
+                
+                <form method="POST" id="citaForm">
+                    {% csrf_token %}
+                    
+                    {{ form|crispy }}
+                    
+                    <button type="submit" class="btn btn-success" {% if not form.vehiculo.field.queryset %}disabled{% endif %}>Agendar Cita</button>
+                    <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-outline-secondary">Atrás</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos del formulario
+        const fechaInput = document.querySelector('input[name="fecha"]');
+        const servicioSelect = document.querySelector('select[name="servicio"]');
+        const horaSelect = document.querySelector('select[name="hora_inicio"]');
+        
+        // Función para cargar horas disponibles
+        function cargarHorasDisponibles() {
+            const fecha = fechaInput.value;
+            const categoria = "{{ form.initial.categoria }}";
+            
+            if (fecha) {
+                // Limpiar opciones actuales
+                horaSelect.innerHTML = '<option value="">---------</option>';
+                
+                // Hacer petición AJAX para obtener horas disponibles
+                fetch(`/citas/horas-disponibles/?fecha=${fecha}&categoria=${categoria}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.horarios && data.horarios.length > 0) {
+                            data.horarios.forEach(horario => {
+                                const option = document.createElement('option');
+                                option.value = horario.valor;
+                                option.textContent = horario.hora;
+                                horaSelect.appendChild(option);
+                            });
+                        } else {
+                            const option = document.createElement('option');
+                            option.value = "";
+                            option.textContent = "No hay horarios disponibles";
+                            horaSelect.appendChild(option);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        }
+        
+        // Eventos
+        fechaInput.addEventListener('change', cargarHorasDisponibles);
+        servicioSelect.addEventListener('change', cargarHorasDisponibles);
+        
+        // Cargar horas al inicio
+        cargarHorasDisponibles();
+    });
+</script>
+{% endblock %}
+{% endblock %}
