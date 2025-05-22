@@ -23,23 +23,57 @@ def register(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            
-            # Crear perfil para el usuario
-            Perfil.objects.create(usuario=user)
-            
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Cuenta creada para {username}! Ahora puedes iniciar sesión.')
-            return redirect('login')
+            try:
+                # Crear el usuario
+                user = form.save()
+                
+                # Verificar si ya tiene perfil (por las señales)
+                try:
+                    perfil = user.perfil
+                except Perfil.DoesNotExist:
+                    # Si no tiene perfil, crearlo manualmente
+                    rol_cliente, _ = Rol.objects.get_or_create(
+                        nombre='Cliente',
+                        defaults={'descripcion': 'Usuario que solicita servicios'}
+                    )
+                    
+                    Perfil.objects.create(
+                        usuario=user,
+                        rol=rol_cliente
+                    )
+                
+                username = form.cleaned_data.get('username')
+                messages.success(request, f'Cuenta creada para {username}! Ahora puedes iniciar sesión.')
+                return redirect('login')
+                
+            except Exception as e:
+                # Si hay error, eliminar el usuario creado para evitar inconsistencias
+                if 'user' in locals():
+                    user.delete()
+                messages.error(request, f'Error al crear la cuenta: {str(e)}')
     else:
         form = UserRegisterForm()
     return render(request, 'usuarios/register.html', {'form': form})
 
 @login_required
 def profile(request):
+    # Asegurar que el usuario tenga un perfil
+    try:
+        perfil = request.user.perfil
+    except Perfil.DoesNotExist:
+        # Crear perfil si no existe
+        rol_cliente, _ = Rol.objects.get_or_create(
+            nombre='Cliente',
+            defaults={'descripcion': 'Usuario que solicita servicios'}
+        )
+        perfil = Perfil.objects.create(
+            usuario=request.user,
+            rol=rol_cliente
+        )
+    
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)
-        p_form = PerfilUpdateForm(request.POST, instance=request.user.perfil)
+        p_form = PerfilUpdateForm(request.POST, instance=perfil)
         
         if u_form.is_valid() and p_form.is_valid():
             u_form.save()
@@ -48,7 +82,7 @@ def profile(request):
             return redirect('profile')
     else:
         u_form = UserUpdateForm(instance=request.user)
-        p_form = PerfilUpdateForm(instance=request.user.perfil)
+        p_form = PerfilUpdateForm(instance=perfil)
     
     context = {
         'u_form': u_form,
@@ -101,7 +135,17 @@ def asignar_rol(request, user_id):
 @login_required
 def dashboard(request):
     # Verificar y crear el perfil si no existe
-    Perfil.objects.get_or_create(usuario=request.user)
+    try:
+        perfil = request.user.perfil
+    except Perfil.DoesNotExist:
+        rol_cliente, _ = Rol.objects.get_or_create(
+            nombre='Cliente',
+            defaults={'descripcion': 'Usuario que solicita servicios'}
+        )
+        perfil = Perfil.objects.create(
+            usuario=request.user,
+            rol=rol_cliente
+        )
     
     context = {
         'title': 'Dashboard',

@@ -28,9 +28,37 @@
                 <form method="POST" id="citaForm">
                     {% csrf_token %}
                     
-                    {{ form|crispy }}
+                    <!-- Campo oculto para la fecha -->
+                    <input type="hidden" name="fecha" value="{{ fecha|date:'Y-m-d' }}">
                     
-                    <button type="submit" class="btn btn-success" {% if not form.vehiculo.field.queryset %}disabled{% endif %}>Agendar Cita</button>
+                    <!-- Vehículo -->
+                    <div class="form-group">
+                        <label for="{{ form.vehiculo.id_for_label }}">{{ form.vehiculo.label }}</label>
+                        {{ form.vehiculo }}
+                    </div>
+                    
+                    <!-- Servicio -->
+                    <div class="form-group">
+                        <label for="{{ form.servicio.id_for_label }}">{{ form.servicio.label }}</label>
+                        {{ form.servicio }}
+                    </div>
+                    
+                    <!-- Hora de inicio -->
+                    <div class="form-group">
+                        <label for="{{ form.hora_inicio.id_for_label }}">Hora de Inicio</label>
+                        <select name="hora_inicio" id="id_hora_inicio" class="form-control" required>
+                            <option value="">Seleccione una hora</option>
+                        </select>
+                        <small class="form-text text-muted">Las horas mostradas están disponibles para la fecha seleccionada.</small>
+                    </div>
+                    
+                    <!-- Notas -->
+                    <div class="form-group">
+                        <label for="{{ form.notas.id_for_label }}">{{ form.notas.label }}</label>
+                        {{ form.notas }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success" id="btnAgendar" {% if not form.vehiculo.field.queryset %}disabled{% endif %}>Agendar Cita</button>
                     <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-outline-secondary">Atrás</a>
                 </form>
             </div>
@@ -38,54 +66,76 @@
     </div>
 </div>
 
-{% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Elementos del formulario
-        const fechaInput = document.querySelector('input[name="fecha"]');
-        const servicioSelect = document.querySelector('select[name="servicio"]');
-        const horaSelect = document.querySelector('select[name="hora_inicio"]');
+document.addEventListener('DOMContentLoaded', function() {
+    const servicioSelect = document.querySelector('select[name="servicio"]');
+    const horaSelect = document.querySelector('select[name="hora_inicio"]');
+    const btnAgendar = document.getElementById('btnAgendar');
+    
+    // Función para cargar horas disponibles
+    function cargarHorasDisponibles() {
+        const fecha = '{{ fecha|date:"Y-m-d" }}';
+        const categoria = '{{ categoria_key }}';
         
-        // Función para cargar horas disponibles
-        function cargarHorasDisponibles() {
-            const fecha = fechaInput.value;
-            const categoria = "{{ form.initial.categoria }}";
+        if (fecha && categoria) {
+            // Limpiar opciones actuales
+            horaSelect.innerHTML = '<option value="">Cargando horarios...</option>';
+            btnAgendar.disabled = true;
             
-            if (fecha) {
-                // Limpiar opciones actuales
-                horaSelect.innerHTML = '<option value="">---------</option>';
-                
-                // Hacer petición AJAX para obtener horas disponibles
-                fetch(`/citas/horas-disponibles/?fecha=${fecha}&categoria=${categoria}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.horarios && data.horarios.length > 0) {
-                            data.horarios.forEach(horario => {
-                                const option = document.createElement('option');
-                                option.value = horario.valor;
-                                option.textContent = horario.hora;
-                                horaSelect.appendChild(option);
-                            });
-                        } else {
+            // Hacer petición AJAX para obtener horas disponibles
+            fetch(`/citas/horas-disponibles/?fecha=${fecha}&categoria=${categoria}`)
+                .then(response => response.json())
+                .then(data => {
+                    // Limpiar opciones
+                    horaSelect.innerHTML = '<option value="">Seleccione una hora</option>';
+                    
+                    if (data.horarios && data.horarios.length > 0) {
+                        data.horarios.forEach(horario => {
                             const option = document.createElement('option');
-                            option.value = "";
-                            option.textContent = "No hay horarios disponibles";
+                            option.value = horario.valor;
+                            option.textContent = horario.hora;
                             horaSelect.appendChild(option);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                    });
-            }
+                        });
+                        btnAgendar.disabled = false;
+                    } else {
+                        const option = document.createElement('option');
+                        option.value = "";
+                        option.textContent = "No hay horarios disponibles";
+                        horaSelect.appendChild(option);
+                        btnAgendar.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    horaSelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                    btnAgendar.disabled = true;
+                });
         }
-        
-        // Eventos
-        fechaInput.addEventListener('change', cargarHorasDisponibles);
-        servicioSelect.addEventListener('change', cargarHorasDisponibles);
-        
-        // Cargar horas al inicio
-        cargarHorasDisponibles();
+    }
+    
+    // Validar que se haya seleccionado una hora antes de enviar
+    horaSelect.addEventListener('change', function() {
+        if (this.value && servicioSelect.value) {
+            btnAgendar.disabled = false;
+        } else {
+            btnAgendar.disabled = true;
+        }
     });
+    
+    // Cargar horas cuando cambie el servicio
+    servicioSelect.addEventListener('change', function() {
+        if (this.value) {
+            cargarHorasDisponibles();
+        } else {
+            horaSelect.innerHTML = '<option value="">Seleccione primero un servicio</option>';
+            btnAgendar.disabled = true;
+        }
+    });
+    
+    // Cargar horas al inicio si ya hay un servicio seleccionado
+    if (servicioSelect.value) {
+        cargarHorasDisponibles();
+    }
+});
 </script>
-{% endblock %}
 {% endblock %}

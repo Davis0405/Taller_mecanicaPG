@@ -25,15 +25,30 @@ class FechaHoraDisponibleForm(forms.Form):
     )
 
 class CitaForm(forms.ModelForm):
+    # Generar opciones de hora por defecto (8:00 AM a 5:00 PM cada 30 min)
+    def generar_opciones_hora():
+        opciones = []
+        hora_actual = datetime.time(8, 0)  # 8:00 AM
+        hora_fin = datetime.time(17, 0)    # 5:00 PM
+        
+        while hora_actual < hora_fin:
+            opciones.append((hora_actual.strftime('%H:%M'), hora_actual.strftime('%H:%M')))
+            # Agregar 30 minutos
+            hora_dt = datetime.datetime.combine(datetime.date.today(), hora_actual)
+            hora_dt = hora_dt + datetime.timedelta(minutes=30)
+            hora_actual = hora_dt.time()
+        
+        return opciones
+    
     vehiculo = forms.ModelChoiceField(queryset=None)
     servicio = forms.ModelChoiceField(queryset=None)
+    hora_inicio = forms.ChoiceField(choices=generar_opciones_hora())
     
     class Meta:
         model = Cita
         fields = ['vehiculo', 'servicio', 'fecha', 'hora_inicio', 'notas']
         widgets = {
             'fecha': forms.DateInput(attrs={'type': 'date', 'min': datetime.date.today().isoformat()}),
-            'hora_inicio': forms.Select(),
             'notas': forms.Textarea(attrs={'rows': 3}),
         }
     
@@ -51,9 +66,13 @@ class CitaForm(forms.ModelForm):
             self.fields['servicio'].queryset = TipoServicio.objects.filter(categoria=categoria)
         else:
             self.fields['servicio'].queryset = TipoServicio.objects.all()
-        
-        # Campo de hora_inicio solo muestra las horas disponibles
-        self.fields['hora_inicio'].widget = forms.Select(choices=[])
+    
+    def clean_hora_inicio(self):
+        hora_str = self.cleaned_data['hora_inicio']
+        try:
+            return datetime.datetime.strptime(hora_str, '%H:%M').time()
+        except ValueError:
+            raise ValidationError("Formato de hora inválido")
 
 class GestionCitaForm(forms.ModelForm):
     class Meta:
@@ -67,5 +86,10 @@ class GestionCitaForm(forms.ModelForm):
         super(GestionCitaForm, self).__init__(*args, **kwargs)
         # Solo permitimos usuarios con rol "Mecánico" para atender citas de servicios mecánicos
         from usuarios.models import Perfil, Rol
-        mecanicos = Perfil.objects.filter(rol__nombre='Mecánico').values_list('usuario', flat=True)
-        self.fields['atendida_por'].queryset = User.objects.filter(id__in=mecanicos)
+        from django.contrib.auth.models import User
+        
+        try:
+            mecanicos = Perfil.objects.filter(rol__nombre__in=['Mecánico', 'Administrador']).values_list('usuario', flat=True)
+            self.fields['atendida_por'].queryset = User.objects.filter(id__in=mecanicos)
+        except:
+            self.fields['atendida_por'].queryset = User.objects.filter(is_staff=True)

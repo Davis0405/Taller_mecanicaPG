@@ -38,7 +38,7 @@
                         <td>{{ servicio.nombre }}</td>
                         <td>{{ servicio.get_categoria_display }}</td>
                         <td>{{ servicio.duracion }}</td>
-                        <td>${{ servicio.precio }}</td>
+                        <td>Q{{ servicio.precio }}</td>
                         <td>{{ servicio.descripcion|truncatechars:50|default:"-" }}</td>
                         <td>
                             <a href="{% url 'editar_servicio' servicio.id %}" class="btn btn-sm btn-info">Editar</a>

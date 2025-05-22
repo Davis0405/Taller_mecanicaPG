@@ -54,9 +54,6 @@
         {% endif %}
         <ul class="navbar-nav mr-auto">
         {% if user.is_authenticated %}
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
-        </li>
         <!-- Enlaces a módulo de citas -->
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="citasDropdown" role="button" data-toggle="dropdown">
@@ -80,7 +77,10 @@
             <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+            <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="nav-link btn btn-link text-decoration-none">Cerrar sesión</button>
+            </form>
         </li>
     {% else %}
         <li class="nav-item">

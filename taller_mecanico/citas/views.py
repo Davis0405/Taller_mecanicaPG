@@ -106,6 +106,10 @@ def horas_disponibles(request):
     except ValueError:
         return JsonResponse({'error': 'Formato de fecha inválido'}, status=400)
     
+    # Verificar que la fecha no sea en el pasado
+    if fecha < datetime.date.today():
+        return JsonResponse({'error': 'No se pueden agendar citas en fechas pasadas'}, status=400)
+    
     # Horario de atención (8:00 AM a 5:00 PM)
     inicio_jornada = datetime.time(8, 0)  # 8:00 AM
     fin_jornada = datetime.time(17, 0)    # 5:00 PM
@@ -123,7 +127,7 @@ def horas_disponibles(request):
         hora_dt = hora_dt + datetime.timedelta(minutes=intervalo_minutos)
         hora_actual = hora_dt.time()
     
-    # Obtener citas existentes en esa fecha
+    # Obtener citas existentes en esa fecha y categoría
     citas_existentes = Cita.objects.filter(
         fecha=fecha,
         estado__in=['PENDIENTE', 'CONFIRMADA'],
@@ -142,11 +146,17 @@ def horas_disponibles(request):
             horario_fin_dt = horario_dt + datetime.timedelta(minutes=intervalo_minutos)
             horario_fin = horario_fin_dt.time()
             
+            # Si hay solapamiento, marcar como ocupado
             if hora_inicio_cita < horario_fin and hora_fin_cita > horario:
                 horarios_ocupados.add(horario)
     
     # Filtrar solo horarios disponibles
     horarios_disponibles = [h for h in horarios_posibles if h not in horarios_ocupados]
+    
+    # Si es hoy, filtrar horarios que ya pasaron
+    if fecha == datetime.date.today():
+        hora_actual = datetime.datetime.now().time()
+        horarios_disponibles = [h for h in horarios_disponibles if h > hora_actual]
     
     # Convertir a formato JSON compatible
     horarios_json = [{'hora': h.strftime('%H:%M'), 'valor': h.strftime('%H:%M')} 
@@ -163,11 +173,17 @@ def nueva_cita(request, fecha, categoria):
         messages.error(request, 'Formato de fecha inválido.')
         return redirect('seleccionar_fecha_hora')
     
+    # Verificar que el usuario tenga al menos un vehículo
+    if not Vehiculo.objects.filter(propietario=request.user).exists():
+        messages.warning(request, 'Debes registrar al menos un vehículo antes de agendar una cita.')
+        return redirect('agregar_vehiculo')
+    
     if request.method == 'POST':
         form = CitaForm(request.POST, user=request.user, categoria=categoria)
         if form.is_valid():
             cita = form.save(commit=False)
             cita.cliente = request.user
+            cita.fecha = fecha_obj  # Asegurar que se use la fecha seleccionada
             
             # Calcular la hora de fin basada en la duración del servicio
             inicio_dt = datetime.datetime.combine(
@@ -188,22 +204,27 @@ def nueva_cita(request, fecha, categoria):
                     enviado=False
                 )
                 
-                # Enviar email de confirmación
+                # Intentar enviar email de confirmación
                 try:
-                    send_mail(
-                        f'Confirmación de Cita - {cita.servicio.nombre}',
-                        f'Su cita para {cita.servicio.nombre} ha sido agendada para el {cita.fecha} a las {cita.hora_inicio}.',
-                        settings.EMAIL_HOST_USER,
-                        [request.user.email],
-                        fail_silently=False,
-                    )
+                    if request.user.email:
+                        send_mail(
+                            f'Confirmación de Cita - {cita.servicio.nombre}',
+                            f'Su cita para {cita.servicio.nombre} ha sido agendada para el {cita.fecha} a las {cita.hora_inicio}.\n\nVehículo: {cita.vehiculo.marca} {cita.vehiculo.modelo} ({cita.vehiculo.placa})',
+                            settings.EMAIL_HOST_USER or 'noreply@tallermecanco.com',
+                            [request.user.email],
+                            fail_silently=True,
+                        )
                 except Exception as e:
                     print(f"Error al enviar email: {e}")
                 
                 messages.success(request, 'Cita agendada correctamente.')
                 return redirect('mis_citas')
+                
             except ValidationError as e:
-                messages.error(request, e)
+                for error in e.messages:
+                    messages.error(request, error)
+            except Exception as e:
+                messages.error(request, f'Error al agendar la cita: {str(e)}')
     else:
         # Inicializar el formulario con la fecha seleccionada
         form = CitaForm(
@@ -215,7 +236,8 @@ def nueva_cita(request, fecha, categoria):
     context = {
         'form': form,
         'fecha': fecha_obj,
-        'categoria': dict(TipoServicio.CATEGORIAS).get(categoria, categoria)
+        'categoria': dict(TipoServicio.CATEGORIAS).get(categoria, categoria),
+        'categoria_key': categoria
     }
     return render(request, 'citas/nueva_cita.html', context)
 
