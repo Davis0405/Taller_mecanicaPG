@@ -91,20 +91,23 @@
     
     {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
         <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button" data-toggle="dropdown">
-                Inventario
-            </a>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'dashboard_inventario' %}">Dashboard Inventario</a>
-                <a class="dropdown-item" href="{% url 'lista_productos' %}">Productos</a>
-                <a class="dropdown-item" href="{% url 'agregar_movimiento' %}">Registrar Movimiento</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'lista_proveedores' %}">Proveedores</a>
-                <a class="dropdown-item" href="{% url 'lista_categorias' %}">Categorías</a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'reporte_stock_bajo' %}">Stock Bajo</a>
-                <a class="dropdown-item" href="{% url 'reporte_valorizado' %}">Reporte Valorizado</a>
-            </div>
+    <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button" data-toggle="dropdown">
+        Inventario
+    </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'dashboard_inventario' %}">Dashboard Inventario</a>
+            <a class="dropdown-item" href="{% url 'lista_productos' %}">Productos</a>
+            <a class="dropdown-item" href="{% url 'agregar_movimiento' %}">Registrar Movimiento</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'lista_alertas' %}">🚨 Alertas</a>
+            <a class="dropdown-item" href="{% url 'test_notificaciones' %}">🔧 Herramientas</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'lista_proveedores' %}">Proveedores</a>
+            <a class="dropdown-item" href="{% url 'lista_categorias' %}">Categorías</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'reporte_stock_bajo' %}">Stock Bajo</a>
+            <a class="dropdown-item" href="{% url 'reporte_valorizado' %}">Reporte Valorizado</a>
+        </div>
         </li>
 
         <li class="nav-item">

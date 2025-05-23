@@ -1,0 +1,165 @@
+<!-- inventario/templates/inventario/lista_alertas.html -->
+{% extends "base.html" %}
+
+{% block title %}Alertas de Inventario{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">🚨 Alertas de Inventario</h2>
+        <div>
+            <a href="{% url 'test_notificaciones' %}" class="btn btn-info">Herramientas</a>
+            <a href="{% url 'dashboard_inventario' %}" class="btn btn-outline-dark">Volver</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="tipo">Tipo de Alerta:</label>
+                        <select name="tipo" id="tipo" class="form-control">
+                            <option value="">Todos</option>
+                            {% for key, value in tipos_alerta %}
+                            <option value="{{ key }}" {% if request.GET.tipo == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="prioridad">Prioridad:</label>
+                        <select name="prioridad" id="prioridad" class="form-control">
+                            <option value="">Todas</option>
+                            {% for key, value in prioridades %}
+                            <option value="{{ key }}" {% if request.GET.prioridad == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="activa">Estado:</label>
+                        <select name="activa" id="activa" class="form-control">
+                            <option value="true" {% if request.GET.activa != 'false' %}selected{% endif %}>Solo Activas</option>
+                            <option value="false" {% if request.GET.activa == 'false' %}selected{% endif %}>Solo Resueltas</option>
+                            <option value="" {% if request.GET.activa == '' %}selected{% endif %}>Todas</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Filtrar</button>
+                    <a href="{% url 'lista_alertas' %}" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Tabla de alertas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Prioridad</th>
+                        <th>Producto</th>
+                        <th>Tipo</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mín.</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for alerta in alertas %}
+                    <tr class="{% if not alerta.activa %}table-secondary{% elif alerta.prioridad == 'CRITICA' %}table-danger{% elif alerta.prioridad == 'ALTA' %}table-warning{% endif %}">
+                        <td>
+                            {% if alerta.prioridad == 'CRITICA' %}
+                                <span class="badge badge-danger">{{ alerta.get_prioridad_display }}</span>
+                            {% elif alerta.prioridad == 'ALTA' %}
+                                <span class="badge badge-warning">{{ alerta.get_prioridad_display }}</span>
+                            {% elif alerta.prioridad == 'MEDIA' %}
+                                <span class="badge badge-info">{{ alerta.get_prioridad_display }}</span>
+                            {% else %}
+                                <span class="badge badge-secondary">{{ alerta.get_prioridad_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'detalle_producto' alerta.producto.id %}">
+                                <strong>{{ alerta.producto.codigo }}</strong><br>
+                                {{ alerta.producto.nombre }}
+                            </a>
+                        </td>
+                        <td>
+                            {% if alerta.tipo == 'STOCK_AGOTADO' %}
+                                <span class="badge badge-danger">{{ alerta.get_tipo_display }}</span>
+                            {% elif alerta.tipo == 'STOCK_CRITICO' %}
+                                <span class="badge badge-warning">{{ alerta.get_tipo_display }}</span>
+                            {% else %}
+                                <span class="badge badge-info">{{ alerta.get_tipo_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <span class="badge badge-{% if alerta.producto.stock_actual == 0 %}danger{% elif alerta.producto.necesita_reposicion %}warning{% else %}success{% endif %}">
+                                {{ alerta.producto.stock_actual }}
+                            </span>
+                        </td>
+                        <td class="text-center">{{ alerta.producto.stock_minimo }}</td>
+                        <td>{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {% if alerta.activa %}
+                                <span class="badge badge-warning">Activa</span>
+                            {% else %}
+                                <span class="badge badge-success">Resuelta</span>
+                                {% if alerta.resuelto_por %}
+                                    <small class="text-muted d-block">por {{ alerta.resuelto_por.username }}</small>
+                                {% endif %}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if alerta.activa %}
+                                <a href="{% url 'resolver_alerta' alerta.id %}" class="btn btn-sm btn-success">Resolver</a>
+                                <a href="{% url 'agregar_movimiento' %}?producto={{ alerta.producto.id }}" class="btn btn-sm btn-primary">Reponer</a>
+                            {% endif %}
+                            <button class="btn btn-sm btn-info" data-toggle="modal" data-target="#detalleModal{{ alerta.id }}">
+                                Detalles
+                            </button>
+                        </td>
+                    </tr>
+                    
+                    <!-- Modal de detalles -->
+                    <div class="modal fade" id="detalleModal{{ alerta.id }}" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Detalle de Alerta</h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <p><strong>Producto:</strong> {{ alerta.producto.codigo }} - {{ alerta.producto.nombre }}</p>
+                                    <p><strong>Tipo:</strong> {{ alerta.get_tipo_display }}</p>
+                                    <p><strong>Prioridad:</strong> {{ alerta.get_prioridad_display }}</p>
+                                    <p><strong>Mensaje:</strong> {{ alerta.mensaje }}</p>
+                                    <p><strong>Fecha:</strong> {{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</p>
+                                    <p><strong>Email enviado:</strong> {% if alerta.notificado_por_email %}Sí{% else %}No{% endif %}</p>
+                                    {% if alerta.fecha_ultimo_email %}
+                                    <p><strong>Último email:</strong> {{ alerta.fecha_ultimo_email|date:"d/m/Y H:i" }}</p>
+                                    {% endif %}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No hay alertas para mostrar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

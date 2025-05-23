@@ -201,23 +201,33 @@ def nueva_cita(request, fecha, categoria):
                     cita=cita,
                     tipo='CONFIRMACION',
                     mensaje=f'Su cita para {cita.servicio.nombre} ha sido agendada para el {cita.fecha} a las {cita.hora_inicio}.',
-                    enviado=False
+                    enviado=False  # Se marcará como enviado después del email
                 )
                 
-                # Intentar enviar email de confirmación
+                # Enviar email de confirmación usando el nuevo sistema
+                from .utils import enviar_email_cita
                 try:
-                    if request.user.email:
-                        send_mail(
-                            f'Confirmación de Cita - {cita.servicio.nombre}',
-                            f'Su cita para {cita.servicio.nombre} ha sido agendada para el {cita.fecha} a las {cita.hora_inicio}.\n\nVehículo: {cita.vehiculo.marca} {cita.vehiculo.modelo} ({cita.vehiculo.placa})',
-                            settings.EMAIL_HOST_USER or 'noreply@tallermecanco.com',
-                            [request.user.email],
-                            fail_silently=True,
-                        )
+                    if request.user.email and enviar_email_cita(cita, 'confirmacion'):
+                        # Marcar la notificación como enviada
+                        notificacion = Notificacion.objects.filter(
+                            cita=cita,
+                            tipo='CONFIRMACION'
+                        ).first()
+                        if notificacion:
+                            notificacion.enviado = True
+                            notificacion.save()
+                        
+                        messages.success(request, 'Cita agendada correctamente. Se ha enviado una confirmación a tu email.')
+                    else:
+                        messages.success(request, 'Cita agendada correctamente.')
+                        if not request.user.email:
+                            messages.info(request, 'No tienes email registrado. Por favor actualiza tu perfil para recibir confirmaciones.')
+                        
                 except Exception as e:
-                    print(f"Error al enviar email: {e}")
+                    print(f"Error al enviar email de confirmación: {e}")
+                    messages.success(request, 'Cita agendada correctamente.')
+                    messages.warning(request, 'No se pudo enviar la confirmación por email.')
                 
-                messages.success(request, 'Cita agendada correctamente.')
                 return redirect('mis_citas')
                 
             except ValidationError as e:
@@ -325,7 +335,7 @@ def gestionar_cita(request, cita_id):
             estado_anterior = cita.estado
             cita = form.save()
             
-            # Si cambió el estado, crear notificación
+            # Si cambió el estado, crear notificación y enviar email
             if estado_anterior != cita.estado:
                 Notificacion.objects.create(
                     cita=cita,
@@ -333,6 +343,21 @@ def gestionar_cita(request, cita_id):
                     mensaje=f'Su cita para {cita.servicio.nombre} ha cambiado de estado a {cita.get_estado_display()}.',
                     enviado=False
                 )
+                
+                # Enviar email de cambio de estado
+                from .utils import enviar_email_cita
+                try:
+                    if cita.cliente.email and enviar_email_cita(cita, 'cambio_estado'):
+                        # Marcar notificación como enviada
+                        notificacion = Notificacion.objects.filter(
+                            cita=cita,
+                            tipo='CAMBIO_ESTADO'
+                        ).last()
+                        if notificacion:
+                            notificacion.enviado = True
+                            notificacion.save()
+                except Exception as e:
+                    print(f"Error al enviar email de cambio de estado: {e}")
             
             messages.success(request, 'Cita actualizada correctamente.')
             return redirect('calendario_citas')

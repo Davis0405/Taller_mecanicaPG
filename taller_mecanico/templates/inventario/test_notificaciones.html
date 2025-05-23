@@ -1,0 +1,131 @@
+<!-- inventario/templates/inventario/test_notificaciones.html -->
+{% extends "base.html" %}
+
+{% block title %}Herramientas de Notificaciones{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0">🔧 Herramientas de Notificaciones</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5>Generar Alertas</h5>
+                                <p class="text-muted">Escanea el inventario y genera alertas automáticamente</p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="accion" value="generar_alertas">
+                                    <button type="submit" class="btn btn-warning">Generar y Enviar</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5>Resumen Diario</h5>
+                                <p class="text-muted">Envía resumen de todas las alertas activas</p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="accion" value="resumen_diario">
+                                    <button type="submit" class="btn btn-primary">Enviar Resumen</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5>Probar Email</h5>
+                                <p class="text-muted">Envía un email de prueba</p>
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="accion" value="test_email">
+                                    <button type="submit" class="btn btn-success">Probar Email</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <h4>Comandos de Consola</h4>
+                <div class="bg-dark text-light p-3 rounded">
+                    <p><strong>Generar alertas:</strong></p>
+                    <code>python manage.py generar_alertas_inventario --enviar-email</code>
+                    
+                    <p class="mt-3"><strong>Enviar resumen diario:</strong></p>
+                    <code>python manage.py enviar_resumen_inventario</code>
+                    
+                    <p class="mt-3"><strong>Ambos procesos:</strong></p>
+                    <code>python manage.py generar_alertas_inventario --enviar-email --resumen-diario</code>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">📊 Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6>Total de Alertas Activas</h6>
+                    <h3 class="text-primary">{{ total_alertas }}</h3>
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Por Tipo</h6>
+                    {% for tipo, cantidad in alertas_por_tipo.items %}
+                    <div class="d-flex justify-content-between">
+                        <span>{{ tipo }}:</span>
+                        <span class="badge badge-info">{{ cantidad }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No hay alertas activas</p>
+                    {% endfor %}
+                </div>
+                
+                <div class="mb-3">
+                    <h6>Por Prioridad</h6>
+                    {% for prioridad, cantidad in alertas_por_prioridad.items %}
+                    <div class="d-flex justify-content-between">
+                        <span>{{ prioridad }}:</span>
+                        <span class="badge {% if prioridad == 'Crítica' %}badge-danger{% elif prioridad == 'Alta' %}badge-warning{% else %}badge-info{% endif %}">{{ cantidad }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No hay alertas activas</p>
+                    {% endfor %}
+                </div>
+                
+                <div>
+                    <h6>Productos con Stock Bajo</h6>
+                    <h4 class="text-warning">{{ productos_stock_bajo }}</h4>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0">Acceso Rápido</h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'lista_alertas' %}" class="btn btn-outline-warning btn-sm">Ver Todas las Alertas</a>
+                    <a href="{% url 'reporte_stock_bajo' %}" class="btn btn-outline-primary btn-sm">Reporte Stock Bajo</a>
+                    <a href="{% url 'dashboard_inventario' %}" class="btn btn-outline-secondary btn-sm">Dashboard Inventario</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

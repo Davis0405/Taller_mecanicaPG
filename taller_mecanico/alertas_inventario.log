@@ -1,0 +1,103 @@
+2025-05-23 12:42:51,221 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 12:42:51,233 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 12:42:51,263 - INFO - Nueva alerta creada: STOCK_AGOTADO para Aceite Motor 10W-40 Sintético 4L
+2025-05-23 12:42:51,268 - INFO - Nueva alerta creada: STOCK_AGOTADO para Aceite Motor 20W-50 4L
+2025-05-23 12:42:51,272 - INFO - Nueva alerta creada: STOCK_AGOTADO para Aceite Transmisión ATF
+2025-05-23 12:42:51,275 - INFO - Nueva alerta creada: STOCK_AGOTADO para Cera Liquida 500ml
+2025-05-23 12:42:51,278 - INFO - Nueva alerta creada: STOCK_AGOTADO para Champú para Auto 1L
+2025-05-23 12:42:51,281 - INFO - Alerta actualizada: Destornillador Plano
+2025-05-23 12:42:51,284 - INFO - Nueva alerta creada: STOCK_AGOTADO para Filtro de Aceite Universal
+2025-05-23 12:42:51,286 - INFO - Nueva alerta creada: STOCK_AGOTADO para Filtro de Aire Universal
+2025-05-23 12:42:51,290 - INFO - Nueva alerta creada: STOCK_AGOTADO para Filtro de Combustible
+2025-05-23 12:42:51,293 - INFO - Nueva alerta creada: STOCK_AGOTADO para Limpiador de Llantas 500ml
+2025-05-23 12:42:51,296 - INFO - Nueva alerta creada: STOCK_AGOTADO para Líquido de Frenos DOT 3
+2025-05-23 12:42:51,298 - INFO - Nueva alerta creada: STOCK_AGOTADO para Llave de Tubo 10mm
+2025-05-23 12:42:51,301 - INFO - Nueva alerta creada: STOCK_AGOTADO para Pastillas de Freno Delanteras
+2025-05-23 12:42:51,303 - INFO - Nueva alerta creada: STOCK_AGOTADO para Pastillas de Freno Traseras
+2025-05-23 12:42:51,304 - INFO - Proceso completado: 13 nuevas alertas generadas
+2025-05-23 12:45:56,169 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 12:45:56,180 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 12:45:56,200 - INFO - Alerta actualizada: Espuma Limpiadora
+2025-05-23 12:45:56,206 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 14:45:42,093 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 14:45:42,123 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 14:45:42,134 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 14:53:58,976 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 14:53:58,987 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 14:53:58,999 - INFO - Alerta actualizada: Aceite Motor 10W-40 Sintético 4L
+2025-05-23 14:53:59,008 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 14:55:33,093 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 14:55:33,106 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 14:55:33,121 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 14:55:37,286 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 14:55:37,299 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 14:55:37,308 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 14:56:35,907 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 14:56:35,920 - INFO - 0 alertas marcadas como resueltas
+2025-05-23 14:56:35,937 - INFO - Proceso completado: 0 nuevas alertas generadas
+2025-05-23 15:02:54,265 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 15:02:54,266 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-05-23 15:02:54,279 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-05-23 15:02:54,291 - INFO - 📝 Alerta actualizada: Aceite Motor 20W-50 4L
+2025-05-23 15:02:56,983 - INFO - Alerta enviada por email: Aceite Motor 20W-50 4L a 3 destinatarios
+2025-05-23 15:02:56,993 - INFO - 📧 Email enviado para alerta existente: Aceite Motor 20W-50 4L
+2025-05-23 15:02:56,998 - INFO - 📝 Alerta actualizada: Aceite Transmisión ATF
+2025-05-23 15:02:58,025 - INFO - Alerta enviada por email: Aceite Transmisión ATF a 3 destinatarios
+2025-05-23 15:02:58,036 - INFO - 📧 Email enviado para alerta existente: Aceite Transmisión ATF
+2025-05-23 15:02:58,061 - INFO - 📝 Alerta actualizada: Filtro de Aceite Universal
+2025-05-23 15:02:59,958 - INFO - Alerta enviada por email: Filtro de Aceite Universal a 3 destinatarios
+2025-05-23 15:02:59,992 - INFO - 📧 Email enviado para alerta existente: Filtro de Aceite Universal
+2025-05-23 15:02:59,998 - INFO - 📝 Alerta actualizada: Filtro de Aire Universal
+2025-05-23 15:03:01,113 - INFO - Alerta enviada por email: Filtro de Aire Universal a 3 destinatarios
+2025-05-23 15:03:01,147 - INFO - 📧 Email enviado para alerta existente: Filtro de Aire Universal
+2025-05-23 15:03:01,153 - INFO - 📝 Alerta actualizada: Filtro de Combustible
+2025-05-23 15:03:02,734 - INFO - Alerta enviada por email: Filtro de Combustible a 3 destinatarios
+2025-05-23 15:03:02,742 - INFO - 📧 Email enviado para alerta existente: Filtro de Combustible
+2025-05-23 15:03:02,746 - INFO - 📝 Alerta actualizada: Pastillas de Freno Delanteras
+2025-05-23 15:03:03,765 - INFO - Alerta enviada por email: Pastillas de Freno Delanteras a 3 destinatarios
+2025-05-23 15:03:03,774 - INFO - 📧 Email enviado para alerta existente: Pastillas de Freno Delanteras
+2025-05-23 15:03:03,778 - INFO - 📝 Alerta actualizada: Pastillas de Freno Traseras
+2025-05-23 15:03:05,554 - INFO - Alerta enviada por email: Pastillas de Freno Traseras a 3 destinatarios
+2025-05-23 15:03:05,563 - INFO - 📧 Email enviado para alerta existente: Pastillas de Freno Traseras
+2025-05-23 15:03:05,567 - INFO - 📝 Alerta actualizada: Líquido de Frenos DOT 3
+2025-05-23 15:03:07,053 - INFO - Alerta enviada por email: Líquido de Frenos DOT 3 a 3 destinatarios
+2025-05-23 15:03:07,061 - INFO - 📧 Email enviado para alerta existente: Líquido de Frenos DOT 3
+2025-05-23 15:03:07,066 - INFO - 📝 Alerta actualizada: Llave de Tubo 10mm
+2025-05-23 15:03:08,406 - INFO - Alerta enviada por email: Llave de Tubo 10mm a 3 destinatarios
+2025-05-23 15:03:08,414 - INFO - 📧 Email enviado para alerta existente: Llave de Tubo 10mm
+2025-05-23 15:03:08,440 - INFO - 📝 Alerta actualizada: Champú para Auto 1L
+2025-05-23 15:03:09,684 - INFO - Alerta enviada por email: Champú para Auto 1L a 3 destinatarios
+2025-05-23 15:03:09,692 - INFO - 📧 Email enviado para alerta existente: Champú para Auto 1L
+2025-05-23 15:03:09,696 - INFO - 📝 Alerta actualizada: Cera Liquida 500ml
+2025-05-23 15:03:11,304 - INFO - Alerta enviada por email: Cera Liquida 500ml a 3 destinatarios
+2025-05-23 15:03:11,311 - INFO - 📧 Email enviado para alerta existente: Cera Liquida 500ml
+2025-05-23 15:03:11,315 - INFO - 📝 Alerta actualizada: Limpiador de Llantas 500ml
+2025-05-23 15:03:13,083 - INFO - Alerta enviada por email: Limpiador de Llantas 500ml a 3 destinatarios
+2025-05-23 15:03:13,088 - INFO - 📧 Email enviado para alerta existente: Limpiador de Llantas 500ml
+2025-05-23 15:03:13,093 - INFO - 📝 Alerta actualizada: Aceite Motor 10W-40 Sintético 4L
+2025-05-23 15:03:13,100 - INFO - 📝 Alerta actualizada: Destornillador Plano
+2025-05-23 15:03:13,105 - INFO - 📝 Alerta actualizada: Espuma Limpiadora
+2025-05-23 15:03:13,106 - INFO - ============================================================
+2025-05-23 15:03:13,106 - INFO - ✓ Alertas nuevas: 0
+2025-05-23 15:03:13,106 - INFO - ✓ Alertas resueltas: 0
+2025-05-23 15:03:13,107 - INFO - ✓ Emails enviados: 12
+2025-05-23 15:03:13,108 - INFO - ============================================================
+2025-05-23 15:04:42,831 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 15:04:42,832 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-05-23 15:04:42,842 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-05-23 15:04:42,860 - INFO - ⚠️ Nueva alerta creada: STOCK_CRITICO para Aceite Motor 10W-40 Sintético 4L
+2025-05-23 15:04:44,367 - INFO - Alerta enviada por email: Aceite Motor 10W-40 Sintético 4L a 3 destinatarios
+2025-05-23 15:04:44,377 - INFO - 📧 Email enviado para nueva alerta: Aceite Motor 10W-40 Sintético 4L
+2025-05-23 15:04:44,380 - INFO - ============================================================
+2025-05-23 15:04:44,380 - INFO - ✓ Alertas nuevas: 1
+2025-05-23 15:04:44,381 - INFO - ✓ Alertas resueltas: 0
+2025-05-23 15:04:44,381 - INFO - ✓ Emails enviados: 1
+2025-05-23 15:04:44,381 - INFO - ============================================================
+2025-05-23 15:12:19,771 - INFO - Iniciando generación de alertas de inventario...
+2025-05-23 15:12:19,773 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-05-23 15:12:19,816 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-05-23 15:12:19,863 - INFO - ============================================================
+2025-05-23 15:12:19,865 - INFO - ✓ Alertas nuevas: 0
+2025-05-23 15:12:19,866 - INFO - ✓ Alertas resueltas: 0
+2025-05-23 15:12:19,867 - INFO - ✓ Emails enviados: 0
+2025-05-23 15:12:19,867 - INFO - ============================================================

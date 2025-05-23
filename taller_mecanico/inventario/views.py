@@ -499,3 +499,146 @@ def api_stock_producto(request, producto_id):
         })
     except Producto.DoesNotExist:
         return JsonResponse({'error': 'Producto no encontrado'}, status=404)
+    
+# inventario/views.py (agregar estas funciones)
+
+@login_required
+def lista_alertas(request):
+    """Lista de alertas de inventario"""
+    if not es_staff_inventario(request.user):
+        messages.error(request, 'No tienes permiso para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    # Filtros
+    tipo = request.GET.get('tipo')
+    prioridad = request.GET.get('prioridad')
+    activa = request.GET.get('activa', 'true')  # Por defecto solo activas
+    
+    alertas = AlertaInventario.objects.all().order_by('-fecha_creacion')
+    
+    if tipo:
+        alertas = alertas.filter(tipo=tipo)
+    
+    if prioridad:
+        alertas = alertas.filter(prioridad=prioridad)
+    
+    if activa == 'true':
+        alertas = alertas.filter(activa=True)
+    elif activa == 'false':
+        alertas = alertas.filter(activa=False)
+    
+    return render(request, 'inventario/lista_alertas.html', {
+        'alertas': alertas,
+        'tipos_alerta': AlertaInventario.TIPOS,
+        'prioridades': AlertaInventario.PRIORIDADES,
+    })
+
+@login_required
+def resolver_alerta(request, alerta_id):
+    """Marcar alerta como resuelta"""
+    if not es_staff_inventario(request.user):
+        messages.error(request, 'No tienes permiso para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    alerta = get_object_or_404(AlertaInventario, id=alerta_id)
+    
+    if request.method == 'POST':
+        alerta.marcar_como_resuelta(request.user)
+        messages.success(request, f'Alerta resuelta: {alerta.producto.nombre}')
+        return redirect('lista_alertas')
+    
+    return render(request, 'inventario/resolver_alerta.html', {'alerta': alerta})
+
+@login_required
+def test_notificaciones(request):
+    """Vista para probar el sistema de notificaciones"""
+    if not es_staff_inventario(request.user):
+        messages.error(request, 'No tienes permiso para acceder a esta sección.')
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+        
+        if accion == 'generar_alertas':
+            from django.core.management import call_command
+            try:
+                call_command('generar_alertas_inventario', enviar_email=True)
+                messages.success(request, 'Alertas generadas y emails enviados correctamente.')
+            except Exception as e:
+                messages.error(request, f'Error al generar alertas: {e}')
+        
+        elif accion == 'resumen_diario':
+            from .utils import enviar_resumen_alertas_diario
+            try:
+                if enviar_resumen_alertas_diario():
+                    messages.success(request, 'Resumen diario enviado correctamente.')
+                else:
+                    messages.warning(request, 'No se pudo enviar el resumen diario.')
+            except Exception as e:
+                messages.error(request, f'Error al enviar resumen: {e}')
+        
+        elif accion == 'test_email':
+            from django.core.mail import send_mail
+            from django.conf import settings
+            try:
+                send_mail(
+                    'Prueba de Notificaciones de Inventario',
+                    'Este es un email de prueba del sistema de notificaciones de inventario.',
+                    settings.EMAIL_HOST_USER,
+                    [request.user.email] if request.user.email else [settings.EMAIL_HOST_USER],
+                    fail_silently=False,
+                )
+                messages.success(request, 'Email de prueba enviado correctamente.')
+            except Exception as e:
+                messages.error(request, f'Error al enviar email de prueba: {e}')
+    
+    # Estadísticas para mostrar en la vista
+    alertas_activas = AlertaInventario.objects.filter(activa=True)
+    alertas_por_tipo = {}
+    alertas_por_prioridad = {}
+    
+    for alerta in alertas_activas:
+        # Contar por tipo
+        tipo = alerta.get_tipo_display()
+        alertas_por_tipo[tipo] = alertas_por_tipo.get(tipo, 0) + 1
+        
+        # Contar por prioridad
+        prioridad = alerta.get_prioridad_display()
+        alertas_por_prioridad[prioridad] = alertas_por_prioridad.get(prioridad, 0) + 1
+    
+    context = {
+        'total_alertas': alertas_activas.count(),
+        'alertas_por_tipo': alertas_por_tipo,
+        'alertas_por_prioridad': alertas_por_prioridad,
+        'productos_stock_bajo': Producto.objects.filter(
+            activo=True,
+            stock_actual__lte=F('stock_minimo')
+        ).count(),
+    }
+    
+    return render(request, 'inventario/test_notificaciones.html', context)
+
+def enviar_notificacion_email(self):
+    """Enviar notificación por email"""
+    from django.utils import timezone
+    from .utils import enviar_alerta_email
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        logger.info(f'Intentando enviar email para alerta: {self.producto.nombre}')
+        
+        if enviar_alerta_email(self):
+            self.notificado_por_email = True
+            self.fecha_ultimo_email = timezone.now()
+            self.save()
+            logger.info(f'✓ Email enviado exitosamente para: {self.producto.nombre}')
+            return True
+        else:
+            logger.warning(f'❌ No se pudo enviar email para: {self.producto.nombre}')
+            return False
+            
+    except Exception as e:
+        logger.error(f'❌ Error al enviar email para {self.producto.nombre}: {e}')
+        return False

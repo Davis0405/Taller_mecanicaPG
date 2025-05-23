@@ -168,22 +168,63 @@ class DetalleOrdenCompra(models.Model):
     class Meta:
         unique_together = ['orden', 'producto']
 
+# inventario/models.py (actualizar la clase AlertaInventario)
+
 class AlertaInventario(models.Model):
     TIPOS = (
         ('STOCK_BAJO', 'Stock Bajo'),
         ('STOCK_AGOTADO', 'Stock Agotado'),
-        ('PRODUCTO_VENCIDO', 'Producto Vencido'),
+        ('STOCK_CRITICO', 'Stock Crítico'),
+        ('REPOSICION_URGENTE', 'Reposición Urgente'),
     )
     
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    PRIORIDADES = (
+        ('BAJA', 'Baja'),
+        ('MEDIA', 'Media'),
+        ('ALTA', 'Alta'),
+        ('CRITICA', 'Crítica'),
+    )
+    
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='alertas')
     tipo = models.CharField(max_length=20, choices=TIPOS)
+    prioridad = models.CharField(max_length=10, choices=PRIORIDADES, default='MEDIA')
     mensaje = models.TextField()
     activa = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_resolucion = models.DateTimeField(null=True, blank=True)
+    resuelto_por = models.ForeignKey(
+        User, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True,
+        related_name='alertas_resueltas'
+    )
+    notificado_por_email = models.BooleanField(default=False)
+    fecha_ultimo_email = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.get_tipo_display()} - {self.producto.nombre}"
     
+    def marcar_como_resuelta(self, usuario=None):
+        """Marcar la alerta como resuelta"""
+        from django.utils import timezone
+        self.activa = False
+        self.fecha_resolucion = timezone.now()
+        self.resuelto_por = usuario
+        self.save()
+    
+    def enviar_notificacion_email(self):
+        """Enviar notificación por email"""
+        from django.utils import timezone
+        from .utils import enviar_alerta_email
+        
+        if enviar_alerta_email(self):
+            self.notificado_por_email = True
+            self.fecha_ultimo_email = timezone.now()
+            self.save()
+            return True
+        return False
+    
     class Meta:
         ordering = ['-fecha_creacion']
+        verbose_name_plural = "Alertas de Inventario"
