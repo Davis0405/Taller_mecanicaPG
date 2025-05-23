@@ -1,0 +1,63 @@
+<!-- inventario/templates/inventario/reporte_valorizado.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte Valorizado - Inventario{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Reporte Valorizado de Inventario</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-light">Imprimir</button>
+            <a href="{% url 'dashboard_inventario' %}" class="btn btn-outline-light">Volver</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info">
+            <strong>Valor Total del Inventario: ${{ total_inventario|floatformat:2 }}</strong>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock</th>
+                        <th>Precio Compra</th>
+                        <th>Valor Total</th>
+                        <th>% del Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in productos_con_porcentaje %}
+                    <tr>
+                        <td>{{ item.producto.codigo }}</td>
+                        <td>
+                            <a href="{% url 'detalle_producto' item.producto.id %}">{{ item.producto.nombre }}</a>
+                        </td>
+                        <td>{{ item.producto.categoria.nombre|default:"-" }}</td>
+                        <td>{{ item.producto.stock_actual }}</td>
+                        <td>${{ item.producto.precio_compra }}</td>
+                        <td><strong>${{ item.producto.valor_inventario|floatformat:2 }}</strong></td>
+                        <td>{{ item.porcentaje|floatformat:1 }}%</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay productos en inventario.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                <tfoot>
+                    <tr class="table-info">
+                        <th colspan="5">TOTAL INVENTARIO</th>
+                        <th>${{ total_inventario|floatformat:2 }}</th>
+                        <th>100%</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

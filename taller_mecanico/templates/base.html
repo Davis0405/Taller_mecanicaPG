@@ -52,8 +52,23 @@
             </div>
         </li>
         {% endif %}
-        <ul class="navbar-nav mr-auto">
+        
+        
+    {% else %}
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+        </li>
+    {% endif %}
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+    <ul class="navbar-nav mr-auto">
         {% if user.is_authenticated %}
+        {% comment %} <li class="nav-item">
+            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+        </li> {% endcomment %}
         <!-- Enlaces a módulo de citas -->
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="citasDropdown" role="button" data-toggle="dropdown">
@@ -73,6 +88,25 @@
         </li>
         {% endif %}
     </ul>
+    
+    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button" data-toggle="dropdown">
+                Inventario
+            </a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item" href="{% url 'dashboard_inventario' %}">Dashboard Inventario</a>
+                <a class="dropdown-item" href="{% url 'lista_productos' %}">Productos</a>
+                <a class="dropdown-item" href="{% url 'agregar_movimiento' %}">Registrar Movimiento</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'lista_proveedores' %}">Proveedores</a>
+                <a class="dropdown-item" href="{% url 'lista_categorias' %}">Categorías</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="{% url 'reporte_stock_bajo' %}">Stock Bajo</a>
+                <a class="dropdown-item" href="{% url 'reporte_valorizado' %}">Reporte Valorizado</a>
+            </div>
+        </li>
+
         <li class="nav-item">
             <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
         </li>
@@ -82,14 +116,8 @@
                 <button type="submit" class="nav-link btn btn-link text-decoration-none">Cerrar sesión</button>
             </form>
         </li>
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-        </li>
-    {% endif %}
+        {% endif %}
+        
 </ul>
             </div>
         </div>

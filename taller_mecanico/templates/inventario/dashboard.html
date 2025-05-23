@@ -1,0 +1,177 @@
+<!-- inventario/templates/inventario/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard Inventario - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Dashboard de Inventario</h1>
+    </div>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_productos }}</h4>
+                        <p class="mb-0">Total Productos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-box fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ productos_stock_bajo }}</h4>
+                        <p class="mb-0">Stock Bajo</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>${{ valor_total_inventario|floatformat:2 }}</h4>
+                        <p class="mb-0">Valor Inventario</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ alertas.count }}</h4>
+                        <p class="mb-0">Alertas Activas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-bell fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                <h5>Agregar Producto</h5>
+                <a href="{% url 'agregar_producto' %}" class="btn btn-primary">Agregar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-exchange-alt fa-3x text-success mb-3"></i>
+                <h5>Registrar Movimiento</h5>
+                <a href="{% url 'agregar_movimiento' %}" class="btn btn-success">Registrar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-adjust fa-3x text-warning mb-3"></i>
+                <h5>Ajustar Inventario</h5>
+                <a href="{% url 'ajustar_inventario' %}" class="btn btn-warning">Ajustar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                <h5>Reportes</h5>
+                <a href="{% url 'reporte_stock_bajo' %}" class="btn btn-info">Ver Reportes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos más usados -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Productos Más Usados (30 días)</h5>
+            </div>
+            <div class="card-body">
+                {% if productos_mas_usados %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Producto</th>
+                                    <th>Cantidad Usada</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in productos_mas_usados %}
+                                <tr>
+                                    <td>{{ item.producto__nombre }}</td>
+                                    <td>{{ item.total_usado }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay datos disponibles.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Alertas Recientes</h5>
+            </div>
+            <div class="card-body">
+                {% if alertas %}
+                    {% for alerta in alertas %}
+                    <div class="alert alert-warning alert-sm mb-2">
+                        <strong>{{ alerta.get_tipo_display }}:</strong> {{ alerta.mensaje }}
+                        <small class="text-muted d-block">{{ alerta.fecha_creacion|date:"d/m/Y H:i" }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No hay alertas activas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

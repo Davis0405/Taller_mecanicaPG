@@ -1,0 +1,153 @@
+<!-- inventario/templates/inventario/editar_producto.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Producto - Inventario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h2 class="mb-0">Editar Producto</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.codigo.label_tag }}
+                                {{ form.codigo }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.tipo.label_tag }}
+                                {{ form.tipo }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.nombre.label_tag }}
+                        {{ form.nombre }}
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.descripcion.label_tag }}
+                        {{ form.descripcion }}
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.categoria.label_tag }}
+                                {{ form.categoria }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.proveedor_principal.label_tag }}
+                                {{ form.proveedor_principal }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.precio_compra.label_tag }}
+                                {{ form.precio_compra }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.precio_venta.label_tag }}
+                                {{ form.precio_venta }}
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                {{ form.unidad_medida.label_tag }}
+                                {{ form.unidad_medida }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.stock_minimo.label_tag }}
+                                {{ form.stock_minimo }}
+                                <small class="form-text text-muted">Stock actual: {{ producto.stock_actual }}</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    {{ form.activo }}
+                                    {{ form.activo.label_tag }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-info">Actualizar Producto</button>
+                    <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-outline-secondary">Cancelar</a>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-primary">Volver a Lista</a>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Información adicional del producto -->
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Información Actual del Producto</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Stock Actual:</th>
+                                <td>
+                                    <span class="badge badge-{{ producto.necesita_reposicion|yesno:'warning,success' }}">
+                                        {{ producto.stock_actual }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Valor en Inventario:</th>
+                                <td>${{ producto.valor_inventario|floatformat:2 }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha Registro:</th>
+                                <td>{{ producto.fecha_registro|date:"d/m/Y H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        {% if producto.necesita_reposicion %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>¡Atención!</strong> Este producto necesita reposición.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="btn-group-vertical d-grid gap-2">
+                            <a href="{% url 'agregar_movimiento' %}?producto={{ producto.id }}" class="btn btn-success btn-sm">
+                                Registrar Movimiento
+                            </a>
+                            <a href="{% url 'detalle_producto' producto.id %}" class="btn btn-info btn-sm">
+                                Ver Historial
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

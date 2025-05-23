@@ -1,0 +1,115 @@
+<!-- inventario/templates/inventario/ajustar_inventario.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Ajustar Inventario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="mb-0">Ajustar Inventario</h2>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Atención:</strong> Esta función permite ajustar el stock de un producto directamente. 
+                    Use con precaución ya que afectará el inventario actual.
+                </div>
+                
+                <form method="POST" id="ajusteForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        {{ form.producto.label_tag }}
+                        {{ form.producto }}
+                        <div id="infoProducto" class="mt-2" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>Stock actual:</strong> <span id="stockActual">-</span><br>
+                                <strong>Stock mínimo:</strong> <span id="stockMinimo">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.stock_nuevo.label_tag }}
+                        {{ form.stock_nuevo }}
+                        <small class="form-text text-muted">Ingrese la cantidad correcta que debería tener en inventario.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.motivo.label_tag }}
+                        {{ form.motivo }}
+                        <small class="form-text text-muted">Explique brevemente el motivo del ajuste.</small>
+                    </div>
+                    
+                    <div id="resumenAjuste" class="alert alert-secondary" style="display: none;">
+                        <strong>Resumen del ajuste:</strong><br>
+                        <span id="textoResumen"></span>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning">Realizar Ajuste</button>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productoSelect = document.querySelector('select[name="producto"]');
+    const stockNuevoInput = document.querySelector('input[name="stock_nuevo"]');
+    const infoProducto = document.getElementById('infoProducto');
+    const stockActual = document.getElementById('stockActual');
+    const stockMinimo = document.getElementById('stockMinimo');
+    const resumenAjuste = document.getElementById('resumenAjuste');
+    const textoResumen = document.getElementById('textoResumen');
+    
+    let stockActualValue = 0;
+    
+    function actualizarInfoProducto() {
+        const productoId = productoSelect.value;
+        
+        if (productoId) {
+            fetch(`/inventario/api/stock/${productoId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    stockActualValue = data.stock_actual;
+                    stockActual.textContent = data.stock_actual;
+                    stockMinimo.textContent = data.stock_minimo;
+                    stockNuevoInput.value = data.stock_actual;
+                    infoProducto.style.display = 'block';
+                    actualizarResumen();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    infoProducto.style.display = 'none';
+                    resumenAjuste.style.display = 'none';
+                });
+        } else {
+            infoProducto.style.display = 'none';
+            resumenAjuste.style.display = 'none';
+        }
+    }
+    
+    function actualizarResumen() {
+        const stockNuevo = parseInt(stockNuevoInput.value) || 0;
+        const diferencia = stockNuevo - stockActualValue;
+        
+        if (diferencia !== 0) {
+            const tipo = diferencia > 0 ? 'incrementará' : 'reducirá';
+            const abs_diferencia = Math.abs(diferencia);
+            textoResumen.innerHTML = `El stock ${tipo} en <strong>${abs_diferencia}</strong> unidades (de ${stockActualValue} a ${stockNuevo})`;
+            resumenAjuste.style.display = 'block';
+        } else {
+            resumenAjuste.style.display = 'none';
+        }
+    }
+    
+    productoSelect.addEventListener('change', actualizarInfoProducto);
+    stockNuevoInput.addEventListener('input', actualizarResumen);
+});
+</script>
+{% endblock %}

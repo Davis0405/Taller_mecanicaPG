@@ -1,0 +1,25 @@
+<!-- inventario/templates/inventario/agregar_proveedor.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Agregar Proveedor - Inventario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">Agregar Nuevo Proveedor</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <button type="submit" class="btn btn-success">Guardar Proveedor</button>
+                    <a href="{% url 'lista_proveedores' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

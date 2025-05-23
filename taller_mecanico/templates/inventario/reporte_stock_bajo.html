@@ -1,0 +1,70 @@
+<!-- inventario/templates/inventario/reporte_stock_bajo.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte Stock Bajo - Inventario{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Reporte de Stock Bajo</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-secondary">Imprimir</button>
+            <a href="{% url 'dashboard_inventario' %}" class="btn btn-outline-dark">Volver</a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if productos %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>{{ productos.count }} producto{{ productos.count|pluralize }} necesita{{ productos.count|pluralize:"n," }} reposición</strong>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Diferencia</th>
+                        <th>Proveedor</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr class="{% if producto.stock_actual == 0 %}table-danger{% else %}table-warning{% endif %}">
+                        <td>{{ producto.codigo }}</td>
+                        <td>
+                            <a href="{% url 'detalle_producto' producto.id %}">{{ producto.nombre }}</a>
+                        </td>
+                        <td>{{ producto.categoria.nombre|default:"-" }}</td>
+                        <td>
+                            <span class="badge badge-{% if producto.stock_actual == 0 %}danger{% else %}warning{% endif %}">
+                                {{ producto.stock_actual }}
+                            </span>
+                        </td>
+                        <td>{{ producto.stock_minimo }}</td>
+                        <td>{{ producto.stock_minimo|add:producto.stock_actual|add:"-"|add:producto.stock_actual }}</td>
+                        <td>{{ producto.proveedor_principal.nombre|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'agregar_movimiento' %}?producto={{ producto.id }}" class="btn btn-sm btn-success">
+                                Reponer
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle"></i>
+            <strong>¡Excelente!</strong> Todos los productos tienen stock suficiente.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

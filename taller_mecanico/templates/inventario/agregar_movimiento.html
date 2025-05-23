@@ -1,0 +1,107 @@
+<!-- inventario/templates/inventario/agregar_movimiento.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Registrar Movimiento - Inventario{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">Registrar Movimiento de Inventario</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="movimientoForm">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        {{ form.producto.label_tag }}
+                        {{ form.producto }}
+                        <div id="infoProducto" class="mt-2" style="display: none;">
+                            <div class="alert alert-info">
+                                <strong>Stock actual:</strong> <span id="stockActual">-</span><br>
+                                <strong>Stock mínimo:</strong> <span id="stockMinimo">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.tipo.label_tag }}
+                                {{ form.tipo }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.motivo.label_tag }}
+                                {{ form.motivo }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.cantidad.label_tag }}
+                                {{ form.cantidad }}
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                {{ form.precio_unitario.label_tag }}
+                                {{ form.precio_unitario }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.observaciones.label_tag }}
+                        {{ form.observaciones }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Registrar Movimiento</button>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const productoSelect = document.querySelector('select[name="producto"]');
+    const infoProducto = document.getElementById('infoProducto');
+    const stockActual = document.getElementById('stockActual');
+    const stockMinimo = document.getElementById('stockMinimo');
+    const precioUnitario = document.querySelector('input[name="precio_unitario"]');
+    
+    productoSelect.addEventListener('change', function() {
+        const productoId = this.value;
+        
+        if (productoId) {
+            fetch(`/inventario/api/stock/${productoId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    stockActual.textContent = data.stock_actual;
+                    stockMinimo.textContent = data.stock_minimo;
+                    precioUnitario.value = data.precio_compra;
+                    infoProducto.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    infoProducto.style.display = 'none';
+                });
+        } else {
+            infoProducto.style.display = 'none';
+        }
+    });
+    
+    // Si hay un producto preseleccionado (desde URL), cargar su info
+    if (productoSelect.value) {
+        productoSelect.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

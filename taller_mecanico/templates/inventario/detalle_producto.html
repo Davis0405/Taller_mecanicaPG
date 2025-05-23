@@ -1,0 +1,162 @@
+<!-- inventario/templates/inventario/detalle_producto.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ producto.nombre }} - Inventario{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">{{ producto.nombre }}</h2>
+                <div>
+                    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-light btn-sm">Editar</a>
+                    <a href="{% url 'agregar_movimiento' %}?producto={{ producto.id }}" class="btn btn-success btn-sm">Nuevo Movimiento</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th>Código:</th>
+                                <td>{{ producto.codigo }}</td>
+                            </tr>
+                            <tr>
+                                <th>Tipo:</th>
+                                <td>{{ producto.get_tipo_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>Categoría:</th>
+                                <td>{{ producto.categoria.nombre|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Proveedor:</th>
+                                <td>{{ producto.proveedor_principal.nombre|default:"-" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Unidad:</th>
+                                <td>{{ producto.unidad_medida }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table">
+                            <tr>
+                                <th>Stock Actual:</th>
+                                <td>
+                                    <span class="badge badge-{{ producto.necesita_reposicion|yesno:'warning,success' }} badge-lg">
+                                        {{ producto.stock_actual }}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Stock Mínimo:</th>
+                                <td>{{ producto.stock_minimo }}</td>
+                            </tr>
+                            <tr>
+                                <th>Precio Compra:</th>
+                                <td>${{ producto.precio_compra }}</td>
+                            </tr>
+                            <tr>
+                                <th>Precio Venta:</th>
+                                <td>${{ producto.precio_venta }}</td>
+                            </tr>
+                            <tr>
+                                <th>Valor Inventario:</th>
+                                <td><strong>${{ producto.valor_inventario|floatformat:2 }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                {% if producto.descripcion %}
+                <div class="alert alert-info">
+                    <strong>Descripción:</strong> {{ producto.descripcion }}
+                </div>
+                {% endif %}
+                
+                {% if producto.necesita_reposicion %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>¡Atención!</strong> Este producto necesita reposición. Stock actual: {{ producto.stock_actual }}, Stock mínimo: {{ producto.stock_minimo }}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Historial de movimientos -->
+        <div class="card mt-3">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Últimos Movimientos</h5>
+            </div>
+            <div class="card-body">
+                {% if movimientos %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Tipo</th>
+                                <th>Motivo</th>
+                                <th>Cantidad</th>
+                                <th>Stock Anterior</th>
+                                <th>Stock Nuevo</th>
+                                <th>Usuario</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movimiento in movimientos %}
+                            <tr>
+                                <td>{{ movimiento.fecha|date:"d/m/Y H:i" }}</td>
+                                <td>
+                                    <span class="badge badge-{% if movimiento.tipo == 'ENTRADA' %}success{% elif movimiento.tipo == 'SALIDA' %}danger{% else %}warning{% endif %}">
+                                        {{ movimiento.get_tipo_display }}
+                                    </span>
+                                </td>
+                                <td>{{ movimiento.get_motivo_display }}</td>
+                                <td>{{ movimiento.cantidad }}</td>
+                                <td>{{ movimiento.stock_anterior }}</td>
+                                <td>{{ movimiento.stock_nuevo }}</td>
+                                <td>{{ movimiento.usuario.username|default:"-" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <a href="{% url 'historial_movimientos' %}?producto={{ producto.id }}" class="btn btn-outline-primary btn-sm">Ver Historial Completo</a>
+                {% else %}
+                <p class="text-muted">No hay movimientos registrados para este producto.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con acciones rápidas -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'agregar_movimiento' %}?producto={{ producto.id }}" class="btn btn-success btn-block">Registrar Movimiento</a>
+                    <a href="{% url 'editar_producto' producto.id %}" class="btn btn-primary btn-block">Editar Producto</a>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-outline-secondary btn-block">Volver a Lista</a>
+                </div>
+            </div>
+             </div>
+        </div>
+        
+        <!-- Card de estadísticas del producto -->
+        <div class="card mt-3">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">Próximamente: estadísticas de uso y rotación</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

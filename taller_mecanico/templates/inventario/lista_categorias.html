@@ -1,0 +1,45 @@
+<!-- inventario/templates/inventario/lista_categorias.html -->
+{% extends "base.html" %}
+
+{% block title %}Categorías - Inventario{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">Categorías de Productos</h2>
+        <a href="{% url 'agregar_categoria' %}" class="btn btn-success">Nueva Categoría</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Descripción</th>
+                        <th>Productos</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for categoria in categorias %}
+                    <tr>
+                        <td><strong>{{ categoria.nombre }}</strong></td>
+                        <td>{{ categoria.descripcion|default:"-" }}</td>
+                        <td>
+                            <span class="badge badge-info">{{ categoria.producto_set.count }} producto{{ categoria.producto_set.count|pluralize }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'lista_productos' %}?categoria={{ categoria.id }}" class="btn btn-sm btn-info">Ver Productos</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center">No hay categorías registradas.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
