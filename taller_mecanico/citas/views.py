@@ -196,6 +196,33 @@ def nueva_cita(request, fecha, categoria):
             try:
                 cita.save()
                 
+                if cita.servicio.categoria == 'CARWASH':
+                    from carwash.models import PaqueteCarwash, TipoVehiculo, CitaCarwash
+                
+                try:
+                    paquete = PaqueteCarwash.objects.get(nombre=cita.servicio.nombre, activo=True)
+                    
+                    # Determinar tipo de vehículo (por ahora usar el sedán pequeño por defecto)
+                    tipo_vehiculo_default = TipoVehiculo.objects.filter(nombre__icontains='sedán').first()
+                    if not tipo_vehiculo_default:
+                        tipo_vehiculo_default = TipoVehiculo.objects.first()
+                    
+                    if tipo_vehiculo_default:
+                        # Crear CitaCarwash
+                        cita_carwash = CitaCarwash.objects.create(
+                            cita=cita,
+                            paquete=paquete,
+                            tipo_vehiculo=tipo_vehiculo_default,
+                            precio_base=paquete.precio_base,
+                            precio_total=paquete.precio_base * tipo_vehiculo_default.factor_precio
+                        )
+                        
+                        # Actualizar el precio del servicio en la cita
+                        cita.servicio.precio = cita_carwash.precio_total
+                        cita.servicio.save()
+                        
+                except PaqueteCarwash.DoesNotExist:
+                    pass  # Si no existe el paquete, continuar normal
                 # Crear notificación de confirmación
                 Notificacion.objects.create(
                     cita=cita,

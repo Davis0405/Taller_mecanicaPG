@@ -1,0 +1,74 @@
+<!-- carwash/templates/carwash/gestionar_cita.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Gestionar Cita Carwash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">🔧 Gestionar Cita Carwash #{{ cita_carwash.cita.id }}</h2>
+            </div>
+            <div class="card-body">
+                <!-- Información de la cita -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <h5>Información Básica</h5>
+                        <table class="table table-sm">
+                            <tr>
+                                <th>Cliente:</th>
+                                <td>{{ cita_carwash.cita.cliente.get_full_name|default:cita_carwash.cita.cliente.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Vehículo:</th>
+                                <td>{{ cita_carwash.cita.vehiculo.marca }} {{ cita_carwash.cita.vehiculo.modelo }} ({{ cita_carwash.cita.vehiculo.placa }})</td>
+                            </tr>
+                            <tr>
+                                <th>Paquete:</th>
+                                <td>{{ cita_carwash.paquete.nombre }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha/Hora:</th>
+                                <td>{{ cita_carwash.cita.fecha }} {{ cita_carwash.cita.hora_inicio|time:"H:i" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Estado Actual</h5>
+                        <div class="alert alert-{% if cita_carwash.estado_proceso == 'EN_ESPERA' %}secondary{% elif cita_carwash.estado_proceso == 'LAVANDO' %}primary{% elif cita_carwash.estado_proceso == 'SECANDO' %}warning{% elif cita_carwash.estado_proceso == 'FINALIZANDO' %}info{% elif cita_carwash.estado_proceso == 'TERMINADO' %}success{% else %}dark{% endif %}">
+                            <h4>{{ cita_carwash.get_estado_proceso_display }}</h4>
+                            {% if cita_carwash.hora_inicio_proceso %}
+                                <small>Iniciado: {{ cita_carwash.hora_inicio_proceso|date:"H:i" }}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Formulario de gestión -->
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="alert alert-info">
+                        <h6>💡 Estados del Proceso:</h6>
+                        <ul class="mb-0">
+                            <li><strong>En Espera:</strong> Cliente llegó, esperando inicio del servicio</li>
+                            <li><strong>Lavando:</strong> Proceso de lavado en curso</li>
+                            <li><strong>Secando:</strong> Secado del vehículo</li>
+                            <li><strong>Finalizando:</strong> Detalles finales y revisión</li>
+                            <li><strong>Terminado:</strong> Servicio completado, listo para entrega</li>
+                            <li><strong>Entregado:</strong> Vehículo entregado al cliente</li>
+                        </ul>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Actualizar Estado</button>
+                    <a href="{% url 'detalle_cita_carwash' cita_carwash.cita.id %}" class="btn btn-outline-secondary">Ver Detalle</a>
+                    <a href="{% url 'lista_citas_carwash' %}" class="btn btn-outline-primary">Volver a Lista</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

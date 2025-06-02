@@ -1,0 +1,183 @@
+<!-- carwash/templates/carwash/reporte_ventas.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte de Ventas Carwash{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">📊 Reporte de Ventas Carwash</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-light">🖨️ Imprimir</button>
+            <a href="{% url 'dashboard_carwash' %}" class="btn btn-outline-light">Volver</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filtros de fecha -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="fecha_desde">Desde:</label>
+                        <input type="date" name="fecha_desde" id="fecha_desde" class="form-control" value="{{ fecha_desde }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="fecha_hasta">Hasta:</label>
+                        <input type="date" name="fecha_hasta" id="fecha_hasta" class="form-control" value="{{ fecha_hasta }}">
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary">Filtrar</button>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Resumen ejecutivo -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ total_servicios }}</h4>
+                        <p class="mb-0">Total Servicios</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ ingresos_totales|floatformat:2 }}</h4>
+                        <p class="mb-0">Ingresos Totales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ promedio_por_servicio|floatformat:2 }}</h4>
+                        <p class="mb-0">Promedio por Servicio</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <h4>{{ fecha_desde }} - {{ fecha_hasta }}</h4>
+                        <p class="mb-0">Período</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ventas por paquete -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">📦 Ventas por Paquete</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Paquete</th>
+                                        <th>Cantidad</th>
+                                        <th>Ingresos</th>
+                                        <th>Promedio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for venta in ventas_por_paquete %}
+                                    <tr>
+                                        <td>{{ venta.paquete__nombre }}</td>
+                                        <td><span class="badge badge-primary">{{ venta.cantidad }}</span></td>
+                                        <td>Q{{ venta.ingresos|floatformat:2 }}</td>
+                                        <td>Q{{ venta.ingresos|div:venta.cantidad|floatformat:2 }}</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="text-center">No hay datos disponibles</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">🚗 Tipos de Vehículo Atendidos</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo de Vehículo</th>
+                                        <th>Cantidad</th>
+                                        <th>%</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for vehiculo in vehiculos_atendidos %}
+                                    <tr>
+                                        <td>{{ vehiculo.tipo_vehiculo__nombre }}</td>
+                                        <td><span class="badge badge-info">{{ vehiculo.cantidad }}</span></td>
+                                        <td>{{ vehiculo.cantidad|mul:100|div:total_servicios|floatformat:1 }}%</td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="3" class="text-center">No hay datos disponibles</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ventas por día -->
+        {% if ventas_por_dia %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0">📅 Ventas por Día</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Servicios</th>
+                                <th>Ingresos</th>
+                                <th>Promedio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for venta in ventas_por_dia %}
+                            <tr>
+                                <td>{{ venta.dia|date:"d/m/Y" }}</td>
+                                <td>{{ venta.cantidad }}</td>
+                                <td>Q{{ venta.ingresos|floatformat:2 }}</td>
+                                <td>Q{{ venta.ingresos|div:venta.cantidad|floatformat:2 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtros matemáticos personalizados -->
+{% load mathfilters %}
+{% endblock %}

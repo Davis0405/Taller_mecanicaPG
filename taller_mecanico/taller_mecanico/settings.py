@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'usuarios',
     'citas',
     'inventario',
+    'carwash',
     'crispy_forms',
     'crispy_bootstrap4',
 ]

@@ -1,0 +1,58 @@
+<!-- carwash/templates/carwash/lista_paquetes.html -->
+{% extends "base.html" %}
+
+{% block title %}Paquetes Carwash{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">📦 Paquetes de Carwash</h2>
+        <a href="{% url 'agregar_paquete_carwash' %}" class="btn btn-success">Nuevo Paquete</a>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            {% for paquete in paquetes %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100 {% if not paquete.activo %}bg-light{% endif %}">
+                    <div class="card-header {% if paquete.tipo == 'BASICO' %}bg-info{% elif paquete.tipo == 'COMPLETO' %}bg-primary{% elif paquete.tipo == 'PREMIUM' %}bg-warning{% else %}bg-success{% endif %} text-white">
+                        <h5 class="mb-0">{{ paquete.nombre }}</h5>
+                        <small>{{ paquete.get_tipo_display }}</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-3">
+                            <h3 class="text-primary">Q{{ paquete.precio_base }}</h3>
+                            <small class="text-muted">{{ paquete.duracion_estimada }} minutos</small>
+                        </div>
+                        
+                        <p class="card-text">{{ paquete.descripcion|truncatechars:100 }}</p>
+                        
+                        <h6>Servicios incluidos:</h6>
+                        <ul class="list-unstyled">
+                            {% for servicio in paquete.get_servicios_incluidos %}
+                            <li><i class="fas fa-check text-success"></i> {{ servicio }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <div class="btn-group w-100">
+                            <a href="{% url 'editar_paquete_carwash' paquete.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            {% if paquete.activo %}
+                                <span class="btn btn-sm btn-success disabled">Activo</span>
+                            {% else %}
+                                <span class="btn btn-sm btn-secondary disabled">Inactivo</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="alert alert-info">
+                    No hay paquetes de carwash registrados. <a href="{% url 'agregar_paquete_carwash' %}">Crea uno ahora</a>.
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -44,7 +44,20 @@
                                     <tr>
                                         <td>{{ cita.fecha }}</td>
                                         <td>{{ cita.hora_inicio }}</td>
-                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>
+                                            {{ cita.servicio.nombre }}
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <div class="mt-1">
+                                                    <small class="text-muted">
+                                                        🚗 Paquete: {{ cita.carwash_detalle.paquete.nombre }}<br>
+                                                        📊 Estado: {{ cita.carwash_detalle.get_estado_proceso_display }}
+                                                        {% if cita.carwash_detalle.estado_proceso == 'ENTREGADO' %}
+                                                            <br><a href="{% url 'calificar_carwash' cita.id %}" class="btn btn-xs btn-warning mt-1">⭐ Calificar</a>
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
                                         <td>
                                             {% if cita.estado == 'PENDIENTE' %}
@@ -52,9 +65,29 @@
                                             {% elif cita.estado == 'CONFIRMADA' %}
                                                 <span class="badge badge-info">Confirmada</span>
                                             {% endif %}
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <br><small class="text-muted">
+                                                    {% if cita.carwash_detalle.estado_proceso == 'EN_ESPERA' %}
+                                                        🔵 En Espera
+                                                    {% elif cita.carwash_detalle.estado_proceso == 'LAVANDO' %}
+                                                        🟡 Lavando
+                                                    {% elif cita.carwash_detalle.estado_proceso == 'SECANDO' %}
+                                                        🟠 Secando
+                                                    {% elif cita.carwash_detalle.estado_proceso == 'FINALIZANDO' %}
+                                                        🔴 Finalizando
+                                                    {% elif cita.carwash_detalle.estado_proceso == 'TERMINADO' %}
+                                                        ✅ Terminado
+                                                    {% elif cita.carwash_detalle.estado_proceso == 'ENTREGADO' %}
+                                                        🎉 Entregado
+                                                    {% endif %}
+                                                </small>
+                                            {% endif %}
                                         </td>
                                         <td>
                                             <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <a href="{% url 'detalle_cita_carwash' cita.id %}" class="btn btn-sm btn-primary">Ver Carwash</a>
+                                            {% endif %}
                                             <a href="{% url 'cancelar_cita' cita.id %}" class="btn btn-sm btn-danger">Cancelar</a>
                                         </td>
                                     </tr>
@@ -88,10 +121,30 @@
                                     <tr>
                                         <td>{{ cita.fecha }}</td>
                                         <td>{{ cita.hora_inicio }}</td>
-                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>
+                                            {{ cita.servicio.nombre }}
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <div class="mt-1">
+                                                    <small class="text-success">
+                                                        🚗 {{ cita.carwash_detalle.paquete.nombre }}
+                                                        {% if cita.carwash_detalle.calificacion %}
+                                                            <br>⭐ Calificación: {{ cita.carwash_detalle.calificacion.puntuacion }}/5
+                                                        {% else %}
+                                                            <br><a href="{% url 'calificar_carwash' cita.id %}" class="btn btn-xs btn-warning mt-1">⭐ Calificar Servicio</a>
+                                                        {% endif %}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
                                         <td>
                                             <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <a href="{% url 'detalle_cita_carwash' cita.id %}" class="btn btn-sm btn-success">Ver Carwash</a>
+                                                {% if not cita.carwash_detalle.calificacion %}
+                                                    <a href="{% url 'calificar_carwash' cita.id %}" class="btn btn-sm btn-warning">Calificar</a>
+                                                {% endif %}
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endif %}
@@ -124,10 +177,22 @@
                                     <tr>
                                         <td>{{ cita.fecha }}</td>
                                         <td>{{ cita.hora_inicio }}</td>
-                                        <td>{{ cita.servicio.nombre }}</td>
+                                        <td>
+                                            {{ cita.servicio.nombre }}
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <div class="mt-1">
+                                                    <small class="text-muted">
+                                                        🚗 {{ cita.carwash_detalle.paquete.nombre }}
+                                                    </small>
+                                                </div>
+                                            {% endif %}
+                                        </td>
                                         <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }} ({{ cita.vehiculo.placa }})</td>
                                         <td>
                                             <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">Detalles</a>
+                                            {% if cita.servicio.categoria == 'CARWASH' and cita.carwash_detalle %}
+                                                <a href="{% url 'detalle_cita_carwash' cita.id %}" class="btn btn-sm btn-secondary">Ver Carwash</a>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                     {% endif %}

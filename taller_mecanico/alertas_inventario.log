@@ -101,3 +101,20 @@
 2025-05-23 15:12:19,866 - INFO - ✓ Alertas resueltas: 0
 2025-05-23 15:12:19,867 - INFO - ✓ Emails enviados: 0
 2025-05-23 15:12:19,867 - INFO - ============================================================
+2025-06-02 11:11:10,673 - INFO - Iniciando generación de alertas de inventario...
+2025-06-02 11:11:10,674 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-06-02 11:11:10,679 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-06-02 11:11:10,697 - INFO - ============================================================
+2025-06-02 11:11:10,698 - INFO - ✓ Alertas nuevas: 0
+2025-06-02 11:11:10,698 - INFO - ✓ Alertas resueltas: 0
+2025-06-02 11:11:10,699 - INFO - ✓ Emails enviados: 0
+2025-06-02 11:11:10,699 - INFO - ============================================================
+2025-06-02 11:11:13,513 - INFO - Iniciando generación de alertas de inventario...
+2025-06-02 11:11:13,514 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-06-02 11:11:13,517 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-06-02 11:11:13,541 - INFO - ============================================================
+2025-06-02 11:11:13,542 - INFO - ✓ Alertas nuevas: 0
+2025-06-02 11:11:13,542 - INFO - ✓ Alertas resueltas: 0
+2025-06-02 11:11:13,543 - INFO - ✓ Emails enviados: 0
+2025-06-02 11:11:13,544 - INFO - ============================================================
+2025-06-02 11:11:36,576 - WARNING - Not Found: /favicon.ico

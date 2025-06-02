@@ -1,0 +1,129 @@
+<!-- carwash/templates/carwash/lista_citas.html -->
+{% extends "base.html" %}
+
+{% block title %}Citas Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h2 class="mb-0">🚗 Gestión de Citas Carwash</h2>
+    </div>
+    <div class="card-body">
+        <!-- Formulario de filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="{{ form.fecha_desde.id_for_label }}">Desde:</label>
+                        {{ form.fecha_desde }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="{{ form.fecha_hasta.id_for_label }}">Hasta:</label>
+                        {{ form.fecha_hasta }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="{{ form.estado_proceso.id_for_label }}">Estado:</label>
+                        {{ form.estado_proceso }}
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="{{ form.paquete.id_for_label }}">Paquete:</label>
+                        {{ form.paquete }}
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+            <a href="{% url 'lista_citas_carwash' %}" class="btn btn-outline-secondary">Limpiar</a>
+        </form>
+        
+        <!-- Tabla de citas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Vehículo</th>
+                        <th>Paquete</th>
+                        <th>Estado</th>
+                        <th>Precio</th>
+                        <th>Lavador</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita_carwash in page_obj %}
+                    <tr>
+                        <td>{{ cita_carwash.cita.fecha }}</td>
+                        <td>{{ cita_carwash.cita.hora_inicio|time:"H:i" }}</td>
+                        <td>{{ cita_carwash.cita.cliente.first_name|default:cita_carwash.cita.cliente.username }}</td>
+                        <td>
+                            {{ cita_carwash.cita.vehiculo.marca }} {{ cita_carwash.cita.vehiculo.modelo }}<br>
+                            <small class="text-muted">{{ cita_carwash.cita.vehiculo.placa }}</small>
+                        </td>
+                        <td>
+                            {{ cita_carwash.paquete.nombre }}<br>
+                            <small class="text-muted">{{ cita_carwash.tipo_vehiculo.nombre }}</small>
+                        </td>
+                        <td>
+                            {% if cita_carwash.estado_proceso == 'EN_ESPERA' %}
+                                <span class="badge badge-secondary">En Espera</span>
+                            {% elif cita_carwash.estado_proceso == 'LAVANDO' %}
+                                <span class="badge badge-primary">Lavando</span>
+                            {% elif cita_carwash.estado_proceso == 'SECANDO' %}
+                                <span class="badge badge-warning">Secando</span>
+                            {% elif cita_carwash.estado_proceso == 'FINALIZANDO' %}
+                                <span class="badge badge-info">Finalizando</span>
+                            {% elif cita_carwash.estado_proceso == 'TERMINADO' %}
+                                <span class="badge badge-success">Terminado</span>
+                            {% elif cita_carwash.estado_proceso == 'ENTREGADO' %}
+                                <span class="badge badge-dark">Entregado</span>
+                            {% endif %}
+                        </td>
+                        <td>Q{{ cita_carwash.precio_total|floatformat:2 }}</td>
+                        <td>{{ cita_carwash.lavador_asignado.first_name|default:cita_carwash.lavador_asignado.username|default:"-" }}</td>
+                        <td>
+                            <a href="{% url 'detalle_cita_carwash' cita_carwash.cita.id %}" class="btn btn-sm btn-info">Ver</a>
+                            <a href="{% url 'gestionar_cita_carwash' cita_carwash.cita.id %}" class="btn btn-sm btn-primary">Gestionar</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center">No hay citas de carwash para mostrar.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Paginación -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Navegación de citas">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Anterior</a>
+                    </li>
+                {% endif %}
+                
+                <li class="page-item active">
+                    <span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+                </li>
+                
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">Siguiente</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

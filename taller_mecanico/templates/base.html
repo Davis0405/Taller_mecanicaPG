@@ -109,6 +109,22 @@
             <a class="dropdown-item" href="{% url 'reporte_valorizado' %}">Reporte Valorizado</a>
         </div>
         </li>
+        
+        <li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="carwashDropdown" role="button" data-toggle="dropdown">
+        🚗 Carwash
+        </a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="{% url 'dashboard_carwash' %}">Dashboard Carwash</a>
+            <a class="dropdown-item" href="{% url 'tablero_carwash' %}">Tablero en Vivo</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'lista_citas_carwash' %}">Gestionar Citas</a>
+            <a class="dropdown-item" href="{% url 'lista_paquetes_carwash' %}">Paquetes</a>
+            <a class="dropdown-item" href="{% url 'lista_tipos_vehiculo' %}">Tipos de Vehículo</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'reporte_ventas_carwash' %}">Reportes de Ventas</a>
+        </div>
+        </li>
 
         <li class="nav-item">
             <a class="nav-link" href="{% url 'profile' %}">Perfil</a>

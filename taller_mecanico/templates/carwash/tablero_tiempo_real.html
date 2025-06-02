@@ -1,0 +1,148 @@
+<!-- carwash/templates/carwash/tablero_tiempo_real.html -->
+{% extends "base.html" %}
+
+{% block title %}Tablero Carwash en Vivo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🚗💨 Tablero Carwash en Tiempo Real</h1>
+    </div>
+</div>
+
+<!-- Estados de las citas -->
+<div class="row mb-4">
+    {% for estado, data in citas_por_estado.items %}
+    <div class="col-md-2">
+        <div class="card text-center 
+            {% if estado == 'EN_ESPERA' %}bg-light
+            {% elif estado == 'LAVANDO' %}bg-primary text-white
+            {% elif estado == 'SECANDO' %}bg-warning
+            {% elif estado == 'FINALIZANDO' %}bg-info text-white
+            {% elif estado == 'TERMINADO' %}bg-success text-white
+            {% elif estado == 'ENTREGADO' %}bg-secondary text-white
+            {% endif %}">
+            <div class="card-body">
+                <h3>{{ data.count }}</h3>
+                <p class="mb-0">{{ data.descripcion }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Citas en proceso -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">🔄 Citas en Proceso</h5>
+            </div>
+            <div class="card-body">
+                {% if citas_en_proceso %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Vehículo</th>
+                                    <th>Paquete</th>
+                                    <th>Estado</th>
+                                    <th>Lavador</th>
+                                    <th>Tiempo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas_en_proceso %}
+                                <tr>
+                                    <td>{{ cita.cita.cliente.first_name|default:cita.cita.cliente.username }}</td>
+                                    <td>{{ cita.cita.vehiculo.marca }} {{ cita.cita.vehiculo.modelo }}<br>
+                                        <small class="text-muted">{{ cita.cita.vehiculo.placa }}</small>
+                                    </td>
+                                    <td>{{ cita.paquete.nombre }}</td>
+                                    <td>
+                                        <span class="badge 
+                                            {% if cita.estado_proceso == 'LAVANDO' %}badge-primary
+                                            {% elif cita.estado_proceso == 'SECANDO' %}badge-warning
+                                            {% elif cita.estado_proceso == 'FINALIZANDO' %}badge-info
+                                            {% endif %}">
+                                            {{ cita.get_estado_proceso_display }}
+                                        </span>
+                                    </td>
+                                    <td>{{ cita.lavador_asignado.first_name|default:cita.lavador_asignado.username|default:"-" }}</td>
+                                    <td>
+                                        {% if cita.hora_inicio_proceso %}
+                                            <small class="text-muted">
+                                                {{ cita.hora_inicio_proceso|timesince }} en proceso
+                                            </small>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'gestionar_cita_carwash' cita.cita.id %}" class="btn btn-sm btn-primary">Gestionar</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        No hay citas en proceso en este momento.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">⏰ Próximas Citas</h5>
+            </div>
+            <div class="card-body">
+                {% if proximas_citas %}
+                    {% for cita in proximas_citas %}
+                    <div class="border-bottom pb-2 mb-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ cita.cita.hora_inicio|time:"H:i" }}</strong>
+                            <span class="badge badge-light">{{ cita.paquete.tipo }}</span>
+                        </div>
+                        <div>{{ cita.cita.cliente.first_name|default:cita.cita.cliente.username }}</div>
+                        <small class="text-muted">{{ cita.cita.vehiculo.marca }} {{ cita.cita.vehiculo.modelo }}</small>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted">No hay más citas programadas para hoy.</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Auto-refresh -->
+        <div class="card mt-3">
+            <div class="card-body text-center">
+                <button class="btn btn-outline-primary" onclick="location.reload()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+                <div class="mt-2">
+                    <small class="text-muted">Última actualización: <span id="ultimaActualizacion"></span></small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Mostrar hora de última actualización
+    document.getElementById('ultimaActualizacion').textContent = new Date().toLocaleTimeString();
+    
+    // Auto-refresh cada 30 segundos
+    setInterval(function() {
+        location.reload();
+    }, 30000);
+});
+</script>
+{% endblock %}

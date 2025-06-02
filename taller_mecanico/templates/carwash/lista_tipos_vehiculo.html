@@ -1,0 +1,101 @@
+<!-- carwash/templates/carwash/lista_tipos_vehiculo.html -->
+{% extends "base.html" %}
+
+{% block title %}Tipos de Vehículo - Carwash{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">🚙 Tipos de Vehículo</h2>
+        <a href="{% url 'agregar_tipo_vehiculo' %}" class="btn btn-success">Nuevo Tipo</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Factor de Precio</th>
+                        <th>Descripción</th>
+                        <th>Ejemplo de Precio</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tipo in tipos %}
+                    <tr>
+                        <td><strong>{{ tipo.nombre }}</strong></td>
+                        <td>
+                            <span class="badge badge-info">{{ tipo.factor_precio }}x</span>
+                        </td>
+                        <td>{{ tipo.descripcion|default:"-" }}</td>
+                        <td>
+                            <small class="text-muted">
+                                Lavado Básico: Q{{ 15|floatformat:0|add:0|mul:tipo.factor_precio|floatformat:0 }}<br>
+                                Lavado Premium: Q{{ 40|floatformat:0|add:0|mul:tipo.factor_precio|floatformat:0 }}
+                            </small>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarTipo({{ tipo.id }}, '{{ tipo.nombre }}', {{ tipo.factor_precio }}, '{{ tipo.descripcion|default:"" }}')">
+                                Editar
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No hay tipos de vehículo registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar tipo de vehículo -->
+<div class="modal fade" id="editarTipoModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Tipo de Vehículo</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form id="editarTipoForm" method="POST">
+                <div class="modal-body">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="editNombre">Nombre:</label>
+                        <input type="text" class="form-control" id="editNombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editFactor">Factor de Precio:</label>
+                        <input type="number" class="form-control" id="editFactor" name="factor_precio" step="0.01" min="0.1" required>
+                        <small class="form-text text-muted">Multiplicador para el precio base (ej: 1.0 = precio normal, 1.5 = 50% más caro)</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescripcion">Descripción:</label>
+                        <textarea class="form-control" id="editDescripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function editarTipo(id, nombre, factor, descripcion) {
+    document.getElementById('editNombre').value = nombre;
+    document.getElementById('editFactor').value = factor;
+    document.getElementById('editDescripcion').value = descripcion;
+    
+    // Actualizar la acción del formulario
+    document.getElementById('editarTipoForm').action = '/carwash/tipos-vehiculo/' + id + '/editar/';
+    
+    $('#editarTipoModal').modal('show');
+}
+</script>
+{% endblock %}

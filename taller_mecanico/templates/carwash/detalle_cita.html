@@ -1,0 +1,271 @@
+<!-- carwash/templates/carwash/detalle_cita.html -->
+{% extends "base.html" %}
+
+{% block title %}Detalle Cita Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">🚗 Detalle de Cita Carwash #{{ cita_carwash.cita.id }}</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4>Información de la Cita</h4>
+                        <table class="table">
+                            <tr>
+                                <th>Cliente:</th>
+                                <td>{{ cita_carwash.cita.cliente.get_full_name|default:cita_carwash.cita.cliente.username }}</td>
+                            </tr>
+                            <tr>
+                                <th>Fecha:</th>
+                                <td>{{ cita_carwash.cita.fecha|date:"l, d F Y" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Hora:</th>
+                                <td>{{ cita_carwash.cita.hora_inicio|time:"H:i" }} - {{ cita_carwash.cita.hora_fin|time:"H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th>Estado Cita:</th>
+                                <td>
+                                    <span class="badge badge-{% if cita_carwash.cita.estado == 'PENDIENTE' %}warning{% elif cita_carwash.cita.estado == 'CONFIRMADA' %}info{% elif cita_carwash.cita.estado == 'COMPLETADA' %}success{% else %}danger{% endif %}">
+                                        {{ cita_carwash.cita.get_estado_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Información del Vehículo</h4>
+                        <table class="table">
+                            <tr>
+                                <th>Marca:</th>
+                                <td>{{ cita_carwash.cita.vehiculo.marca }}</td>
+                            </tr>
+                            <tr>
+                                <th>Modelo:</th>
+                                <td>{{ cita_carwash.cita.vehiculo.modelo }}</td>
+                            </tr>
+                            <tr>
+                                <th>Año:</th>
+                                <td>{{ cita_carwash.cita.vehiculo.año }}</td>
+                            </tr>
+                            <tr>
+                                <th>Placa:</th>
+                                <td><strong>{{ cita_carwash.cita.vehiculo.placa }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th>Color:</th>
+                                <td>{{ cita_carwash.cita.vehiculo.color }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Información del servicio carwash -->
+                <div class="card mt-3">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0">🧽 Detalles del Servicio Carwash</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Paquete Seleccionado</h6>
+                                <div class="alert alert-light">
+                                    <h5>{{ cita_carwash.paquete.nombre }}</h5>
+                                    <p>{{ cita_carwash.paquete.descripcion }}</p>
+                                    <h6>Servicios incluidos:</h6>
+                                    <ul>
+                                        {% for servicio in cita_carwash.paquete.get_servicios_incluidos %}
+                                        <li><i class="fas fa-check text-success"></i> {{ servicio }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Precios y Estado</h6>
+                                <table class="table">
+                                    <tr>
+                                        <th>Tipo de Vehículo:</th>
+                                        <td>{{ cita_carwash.tipo_vehiculo.nombre }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Precio Base:</th>
+                                        <td>Q{{ cita_carwash.precio_base }}</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Factor:</th>
+                                        <td>{{ cita_carwash.tipo_vehiculo.factor_precio }}x</td>
+                                    </tr>
+                                    <tr>
+                                        <th>Precio Total:</th>
+                                        <td><strong>Q{{ cita_carwash.precio_total }}</strong></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Estado Proceso:</th>
+                                        <td>
+                                            <span class="badge badge-{% if cita_carwash.estado_proceso == 'EN_ESPERA' %}secondary{% elif cita_carwash.estado_proceso == 'LAVANDO' %}primary{% elif cita_carwash.estado_proceso == 'SECANDO' %}warning{% elif cita_carwash.estado_proceso == 'FINALIZANDO' %}info{% elif cita_carwash.estado_proceso == 'TERMINADO' %}success{% else %}dark{% endif %}">
+                                                {{ cita_carwash.get_estado_proceso_display }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        {% if cita_carwash.lavador_asignado %}
+                        <div class="alert alert-info">
+                            <strong>👨‍🔧 Lavador Asignado:</strong> {{ cita_carwash.lavador_asignado.get_full_name|default:cita_carwash.lavador_asignado.username }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if cita_carwash.servicios_adicionales %}
+                        <div class="alert alert-warning">
+                            <strong>➕ Servicios Adicionales:</strong><br>
+                            {{ cita_carwash.servicios_adicionales }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if cita_carwash.observaciones %}
+                        <div class="alert alert-secondary">
+                            <strong>📝 Observaciones:</strong><br>
+                            {{ cita_carwash.observaciones }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Tiempos de proceso -->
+                {% if cita_carwash.hora_inicio_proceso or cita_carwash.hora_fin_proceso %}
+                <div class="card mt-3">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0">⏱️ Tiempos de Proceso</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if cita_carwash.hora_inicio_proceso %}
+                            <div class="col-md-6">
+                                <strong>Inicio:</strong> {{ cita_carwash.hora_inicio_proceso|date:"d/m/Y H:i" }}
+                            </div>
+                            {% endif %}
+                            {% if cita_carwash.hora_fin_proceso %}
+                            <div class="col-md-6">
+                                <strong>Fin:</strong> {{ cita_carwash.hora_fin_proceso|date:"d/m/Y H:i" }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% if cita_carwash.duracion_real %}
+                        <div class="mt-2">
+                            <strong>Duración Real:</strong> {{ cita_carwash.duracion_real|floatformat:0 }} minutos
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Productos utilizados -->
+                {% if productos_utilizados %}
+                <div class="card mt-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">🧴 Productos Utilizados</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Costo Unit.</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for producto in productos_utilizados %}
+                                    <tr>
+                                        <td>{{ producto.producto.nombre }}</td>
+                                        <td>{{ producto.cantidad_utilizada }}</td>
+                                        <td>Q{{ producto.costo_unitario }}</td>
+                                        <td>Q{{ producto.costo_total|floatformat:2 }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Calificación -->
+                {% if cita_carwash.calificacion %}
+                <div class="card mt-3">
+                    <div class="card-header bg-warning text-dark">
+                        <h5 class="mb-0">⭐ Calificación del Cliente</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="mr-3">
+                                <h4 class="mb-0">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= cita_carwash.calificacion.puntuacion %}
+                                            ⭐
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                </h4>
+                                <small class="text-muted">{{ cita_carwash.calificacion.puntuacion }}/5</small>
+                            </div>
+                            <div class="flex-grow-1">
+                                {% if cita_carwash.calificacion.comentarios %}
+                                    <p class="mb-0">{{ cita_carwash.calificacion.comentarios }}</p>
+                                {% endif %}
+                                <small class="text-muted">{{ cita_carwash.calificacion.fecha_calificacion|date:"d/m/Y H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con acciones -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">🔧 Acciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if cita_carwash.estado_proceso != 'ENTREGADO' %}
+                        <a href="{% url 'gestionar_cita_carwash' cita_carwash.cita.id %}" class="btn btn-primary btn-block">Gestionar Proceso</a>
+                    {% endif %}
+                    
+                    <a href="{% url 'lista_citas_carwash' %}" class="btn btn-outline-secondary btn-block">Volver a Lista</a>
+                    
+                    {% if cita_carwash.cita.cliente == request.user and cita_carwash.estado_proceso == 'ENTREGADO' and not cita_carwash.calificacion %}
+                        <a href="{% url 'calificar_carwash' cita_carwash.cita.id %}" class="btn btn-warning btn-block">⭐ Calificar Servicio</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Información rápida -->
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">📊 Resumen</h6>
+            </div>
+            <div class="card-body">
+                <small>
+                    <strong>Duración Estimada:</strong> {{ cita_carwash.paquete.duracion_estimada }} min<br>
+                    <strong>Creada:</strong> {{ cita_carwash.cita.creada_el|date:"d/m/Y H:i" }}<br>
+                    <strong>Última Actualización:</strong> {{ cita_carwash.cita.actualizada_el|date:"d/m/Y H:i" }}
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

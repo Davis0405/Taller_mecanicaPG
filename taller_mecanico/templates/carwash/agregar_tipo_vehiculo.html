@@ -1,0 +1,36 @@
+<!-- carwash/templates/carwash/agregar_tipo_vehiculo.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Agregar Tipo de Vehículo - Carwash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h2 class="mb-0">🚙 Agregar Tipo de Vehículo</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    
+                    <div class="alert alert-info mt-3">
+                        <h6>💡 Información sobre Factor de Precio:</h6>
+                        <ul class="mb-0">
+                            <li><strong>1.0</strong> = Precio normal (sedanes pequeños)</li>
+                            <li><strong>1.2</strong> = 20% más caro (sedanes grandes)</li>
+                            <li><strong>1.5</strong> = 50% más caro (SUVs, pickups)</li>
+                            <li><strong>0.6</strong> = 40% más barato (motocicletas)</li>
+                        </ul>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success">Guardar Tipo</button>
+                    <a href="{% url 'lista_tipos_vehiculo' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

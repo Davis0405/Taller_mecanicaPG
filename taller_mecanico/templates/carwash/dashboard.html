@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🚗 Dashboard Carwash</h1>
+    </div>
+</div>
+
+<!-- Tarjetas de estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_citas_hoy }}</h4>
+                        <p class="mb-0">Citas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ en_proceso }}</h4>
+                        <p class="mb-0">En Proceso</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-cog fa-spin fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ completadas_hoy }}</h4>
+                        <p class="mb-0">Completadas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>Q{{ ingresos_hoy|floatformat:0 }}</h4>
+                        <p class="mb-0">Ingresos Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-eye fa-3x text-primary mb-3"></i>
+                <h5>Tablero en Vivo</h5>
+                <a href="{% url 'tablero_carwash' %}" class="btn btn-primary">Ver Tablero</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-list fa-3x text-success mb-3"></i>
+                <h5>Gestionar Citas</h5>
+                <a href="{% url 'lista_citas_carwash' %}" class="btn btn-success">Ver Citas</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-box fa-3x text-warning mb-3"></i>
+                <h5>Paquetes</h5>
+                <a href="{% url 'lista_paquetes_carwash' %}" class="btn btn-warning">Gestionar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
+                <h5>Reportes</h5>
+                <a href="{% url 'reporte_ventas_carwash' %}" class="btn btn-info">Ver Reportes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información detallada -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Próximas Citas</h5>
+            </div>
+            <div class="card-body">
+                {% if proximas_citas %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Hora</th>
+                                    <th>Cliente</th>
+                                    <th>Paquete</th>
+                                    <th>Vehículo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in proximas_citas %}
+                                <tr>
+                                    <td>{{ cita.cita.hora_inicio|time:"H:i" }}</td>
+                                    <td>{{ cita.cita.cliente.first_name|default:cita.cita.cliente.username }}</td>
+                                    <td>{{ cita.paquete.nombre }}</td>
+                                    <td>{{ cita.cita.vehiculo.marca }} {{ cita.cita.vehiculo.modelo }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay citas próximas para hoy.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Paquetes Populares (Esta Semana)</h5>
+            </div>
+            <div class="card-body">
+                {% if paquetes_populares %}
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Paquete</th>
+                                    <th>Cantidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for paquete in paquetes_populares %}
+                                <tr>
+                                    <td>{{ paquete.paquete__nombre }}</td>
+                                    <td><span class="badge badge-primary">{{ paquete.total }}</span></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">No hay datos de paquetes esta semana.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas adicionales -->
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Ingresos de la Semana</h5>
+                <h3 class="text-success">Q{{ ingresos_semana|floatformat:2 }}</h3>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>Calificación Promedio</h5>
+                <h3 class="text-warning">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= calificacion_promedio %}
+                            ⭐
+                        {% else %}
+                            ☆
+                        {% endif %}
+                    {% endfor %}
+                    ({{ calificacion_promedio|floatformat:1 }}/5)
+                </h3>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

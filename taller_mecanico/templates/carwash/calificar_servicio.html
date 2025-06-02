@@ -1,0 +1,112 @@
+<!-- carwash/templates/carwash/calificar_servicio.html -->
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Calificar Servicio Carwash{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="mb-0">⭐ Calificar Servicio de Carwash</h2>
+            </div>
+            <div class="card-body">
+                <!-- Información del servicio -->
+                <div class="alert alert-light">
+                    <h5>{{ cita_carwash.paquete.nombre }}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Fecha:</strong> {{ cita_carwash.cita.fecha|date:"d/m/Y" }}<br>
+                            <strong>Vehículo:</strong> {{ cita_carwash.cita.vehiculo.marca }} {{ cita_carwash.cita.vehiculo.modelo }}<br>
+                            <strong>Precio:</strong> Q{{ cita_carwash.precio_total|floatformat:2 }}
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Servicios incluidos:</strong>
+                            <ul class="mb-0">
+                                {% for servicio in cita_carwash.paquete.get_servicios_incluidos %}
+                                <li>{{ servicio }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if calificacion_existente %}
+                <div class="alert alert-info">
+                    <h6>📝 Tu calificación actual:</h6>
+                    <div class="d-flex align-items-center">
+                        <div class="mr-3">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= calificacion_existente.puntuacion %}
+                                    ⭐
+                                {% else %}
+                                    ☆
+                                {% endif %}
+                            {% endfor %}
+                            ({{ calificacion_existente.puntuacion }}/5)
+                        </div>
+                        <div>
+                            {% if calificacion_existente.comentarios %}
+                                <em>"{{ calificacion_existente.comentarios }}"</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Formulario de calificación -->
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label>{{ form.puntuacion.label }}</label>
+                        <div class="rating-stars">
+                            {% for choice in form.puntuacion %}
+                                <div class="form-check">
+                                    {{ choice.tag }}
+                                    {{ choice.choice_label }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        {{ form.comentarios.label_tag }}
+                        {{ form.comentarios }}
+                    </div>
+                    
+                    <button type="submit" class="btn btn-warning">
+                        {% if calificacion_existente %}
+                            Actualizar Calificación
+                        {% else %}
+                            Enviar Calificación
+                        {% endif %}
+                    </button>
+                    <a href="{% url 'mis_citas' %}" class="btn btn-outline-secondary">Cancelar</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.rating-stars .form-check {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    transition: all 0.3s;
+}
+
+.rating-stars .form-check:hover {
+    background-color: #fff3cd;
+    border-color: #ffc107;
+}
+
+.rating-stars .form-check input[type="radio"]:checked + label {
+    font-weight: bold;
+    color: #856404;
+}
+</style>
+{% endblock %}
