@@ -1,0 +1,291 @@
+<!-- vehiculos/templates/vehiculos/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Gestión de Vehículos - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🚙 Gestión de Vehículos</h1>
+    </div>
+</div>
+
+<!-- Estadísticas principales -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.total_vehiculos }}</h4>
+                        <p class="mb-0">Total Vehículos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-car fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.vehiculos_con_servicios }}</h4>
+                        <p class="mb-0">Con Servicios</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-tools fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.servicios_mes_actual }}</h4>
+                        <p class="mb-0">Servicios Este Mes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-wrench fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ proximos_mantenimientos.count }}</h4>
+                        <p class="mb-0">Mantenimientos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-check fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-plus-circle fa-3x text-primary mb-3"></i>
+                <h5>Agregar Vehículo</h5>
+                <p class="text-muted">Registrar un nuevo vehículo en el sistema</p>
+                <a href="{% url 'agregar_vehiculo' %}" class="btn btn-primary">Agregar Vehículo</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-list fa-3x text-success mb-3"></i>
+                <h5>Ver Todos los Vehículos</h5>
+                <p class="text-muted">Lista completa de vehículos registrados</p>
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-success">Ver Lista</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5>Por Cliente</h5>
+                <p class="text-muted">Vehículos organizados por propietario</p>
+                {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+                <a href="{% url 'vehiculos_por_cliente' %}" class="btn btn-info">Ver por Cliente</a>
+                {% else %}
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-outline-info">Mis Vehículos</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Lista de vehículos recientes -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">🚗 Vehículos Registrados</h5>
+                <a href="{% url 'lista_vehiculos' %}" class="btn btn-light btn-sm">Ver Todos</a>
+            </div>
+            <div class="card-body">
+                {% if vehiculos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Vehículo</th>
+                                <th>Propietario</th>
+                                <th>Año</th>
+                                <th>Servicios</th>
+                                <th>Último Servicio</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vehiculo in vehiculos %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="mr-3">
+                                            <i class="fas fa-car fa-2x text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <strong>{{ vehiculo.marca }} {{ vehiculo.modelo }}</strong><br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-hashtag"></i> {{ vehiculo.placa }} | 
+                                                <i class="fas fa-palette"></i> {{ vehiculo.color }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ vehiculo.propietario.get_full_name|default:vehiculo.propietario.username }}</strong><br>
+                                    <small class="text-muted">{{ vehiculo.propietario.email|default:"Sin email" }}</small>
+                                </td>
+                                <td>{{ vehiculo.año }}</td>
+                                <td>
+                                    <span class="badge badge-info">{{ vehiculo.citas.count }}</span>
+                                </td>
+                                <td>
+                                    {% with ultimo_servicio=vehiculo.citas.first %}
+                                    {% if ultimo_servicio %}
+                                        <small>{{ ultimo_servicio.fecha|date:"d M Y" }}</small><br>
+                                        <small class="text-muted">{{ ultimo_servicio.servicio.nombre }}</small>
+                                    {% else %}
+                                        <span class="text-muted">Sin servicios</span>
+                                    {% endif %}
+                                    {% endwith %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'detalle_vehiculo_completo' vehiculo.id %}" 
+                                           class="btn btn-sm btn-info" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if vehiculo.propietario == user or user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+                                        <a href="{% url 'editar_vehiculo' vehiculo.id %}" 
+                                           class="btn btn-sm btn-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-car fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No hay vehículos registrados</h5>
+                    <p class="text-muted">Los vehículos aparecerán aquí una vez registrados</p>
+                    <a href="{% url 'agregar_vehiculo' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Registrar Primer Vehículo
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con información -->
+    <div class="col-md-4">
+        <!-- Vehículos con servicios recientes -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🔧 Actividad Reciente</h5>
+            </div>
+            <div class="card-body">
+                {% if vehiculos_recientes %}
+                {% for vehiculo in vehiculos_recientes %}
+                <div class="mb-3 p-2 border rounded">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="mb-1">{{ vehiculo.marca }} {{ vehiculo.modelo }}</h6>
+                            <small class="text-muted">{{ vehiculo.placa }}</small>
+                        </div>
+                        <small class="text-success">
+                            <i class="fas fa-tools"></i> Reciente
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">
+                    <i class="fas fa-info-circle"></i><br>
+                    No hay actividad reciente
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Próximos mantenimientos -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">⏰ Próximos Mantenimientos</h5>
+            </div>
+            <div class="card-body">
+                {% if proximos_mantenimientos %}
+                {% for mantenimiento in proximos_mantenimientos %}
+                <div class="alert alert-warning alert-sm">
+                    <strong>{{ mantenimiento.vehiculo }}</strong><br>
+                    <small>{{ mantenimiento.servicio_recomendado }}</small>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">
+                    <i class="fas fa-check-circle"></i><br>
+                    No hay mantenimientos pendientes
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Gestión de Vehículos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-plus text-info"></i> Registrar Vehículos</h6>
+                        <p class="small text-muted">Mantén un registro completo de todos los vehículos que atiendes</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-history text-info"></i> Historial de Servicios</h6>
+                        <p class="small text-muted">Lleva un control detallado de todos los servicios realizados</p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-chart-line text-info"></i> Estadísticas</h6>
+                        <p class="small text-muted">Analiza patrones de mantenimiento y gastos por vehículo</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

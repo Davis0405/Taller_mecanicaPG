@@ -1,0 +1,293 @@
+<!-- vehiculos/templates/vehiculos/detalle_completo.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ vehiculo.marca }} {{ vehiculo.modelo }} - Detalle Completo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <!-- Información del vehículo -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">🚗 {{ vehiculo.marca }} {{ vehiculo.modelo }}</h2>
+                <div>
+                    {% if vehiculo.propietario == user or user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+                    <a href="{% url 'editar_vehiculo' vehiculo.id %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'dashboard_vehiculos' %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th><i class="fas fa-car text-primary"></i> Marca:</th>
+                                <td><strong>{{ vehiculo.marca }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-cog text-primary"></i> Modelo:</th>
+                                <td><strong>{{ vehiculo.modelo }}</strong></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-calendar text-primary"></i> Año:</th>
+                                <td>{{ vehiculo.año }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-hashtag text-primary"></i> Placa:</th>
+                                <td><span class="badge badge-secondary">{{ vehiculo.placa }}</span></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-palette text-primary"></i> Color:</th>
+                                <td>{{ vehiculo.color }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <th><i class="fas fa-user text-primary"></i> Propietario:</th>
+                                <td>
+                                    <strong>{{ vehiculo.propietario.get_full_name|default:vehiculo.propietario.username }}</strong><br>
+                                    <small class="text-muted">{{ vehiculo.propietario.email|default:"Sin email" }}</small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-clock text-primary"></i> Registrado:</th>
+                                <td>{{ vehiculo.fecha_registro|date:"d M Y H:i" }}</td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-tools text-primary"></i> Total Servicios:</th>
+                                <td><span class="badge badge-info badge-lg">{{ stats.total_servicios }}</span></td>
+                            </tr>
+                            <tr>
+                                <th><i class="fas fa-dollar-sign text-primary"></i> Gasto Total:</th>
+                                <td><strong class="text-success">Q{{ stats.gasto_total|floatformat:2 }}</strong></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Estadísticas del vehículo -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ stats.total_servicios }}</h4>
+                        <p class="mb-0">Servicios</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ stats.gasto_total|floatformat:0 }}</h4>
+                        <p class="mb-0">Gasto Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ stats.promedio_gasto|floatformat:0 }}</h4>
+                        <p class="mb-0">Promedio</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>
+                            {% if stats.ultimo_servicio %}
+                                {{ stats.ultimo_servicio.fecha|timesince }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </h4>
+                        <p class="mb-0">Último Servicio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Historial de servicios -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Historial de Servicios</h5>
+                <a href="{% url 'historial_servicios_vehiculo' vehiculo.id %}" class="btn btn-light btn-sm">
+                    Ver Historial Completo
+                </a>
+            </div>
+            <div class="card-body">
+                {% if historial_servicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Servicio</th>
+                                <th>Categoría</th>
+                                <th>Estado</th>
+                                <th>Costo</th>
+                                <th>Atendido por</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for servicio in historial_servicios %}
+                            <tr>
+                                <td>
+                                    <strong>{{ servicio.fecha|date:"d M Y" }}</strong><br>
+                                    <small class="text-muted">{{ servicio.hora_inicio|time:"H:i" }}</small>
+                                </td>
+                                <td>
+                                    <strong>{{ servicio.servicio.nombre }}</strong>
+                                    {% if servicio.servicio.descripcion %}
+                                    <br><small class="text-muted">{{ servicio.servicio.descripcion|truncatechars:30 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{% if servicio.servicio.categoria == 'MECANICO' %}primary{% else %}success{% endif %}">
+                                        {{ servicio.servicio.get_categoria_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if servicio.estado == 'COMPLETADA' %}
+                                        <span class="badge badge-success">Completado</span>
+                                    {% elif servicio.estado == 'CONFIRMADA' %}
+                                        <span class="badge badge-info">Confirmado</span>
+                                    {% elif servicio.estado == 'PENDIENTE' %}
+                                        <span class="badge badge-warning">Pendiente</span>
+                                    {% else %}
+                                        <span class="badge badge-danger">{{ servicio.get_estado_display }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong class="text-success">Q{{ servicio.servicio.precio }}</strong>
+                                </td>
+                                <td>
+                                    {% if servicio.atendida_por %}
+                                        {{ servicio.atendida_por.get_full_name|default:servicio.atendida_por.username }}
+                                    {% else %}
+                                        <span class="text-muted">No especificado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="{% url 'detalle_cita' servicio.id %}" class="btn btn-sm btn-info">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+                                    {% if servicio.estado == 'COMPLETADA' and not servicio.notas %}
+                                    <a href="{% url 'crear_historial_detallado' servicio.id %}" class="btn btn-sm btn-success" title="Crear historial detallado">
+                                        <i class="fas fa-plus"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-tools fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Sin historial de servicios</h5>
+                    <p class="text-muted">Los servicios realizados aparecerán aquí</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-md-4">
+        <!-- Próximas citas -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-calendar-plus"></i> Próximas Citas</h5>
+            </div>
+            <div class="card-body">
+                {% if proximas_citas %}
+                {% for cita in proximas_citas %}
+                <div class="alert alert-info alert-sm">
+                    <strong>{{ cita.servicio.nombre }}</strong><br>
+                    <small>
+                        <i class="fas fa-calendar"></i> {{ cita.fecha|date:"d M Y" }} a las {{ cita.hora_inicio|time:"H:i" }}
+                    </small><br>
+                    <span class="badge badge-{% if cita.estado == 'CONFIRMADA' %}success{% else %}warning{% endif %}">
+                        {{ cita.get_estado_display }}
+                    </span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">
+                    <i class="fas fa-calendar-times"></i><br>
+                    No hay citas próximas
+                </p>
+                <div class="text-center">
+                    <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-info btn-sm">
+                        <i class="fas fa-plus"></i> Agendar Cita
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Servicios más frecuentes -->
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Servicios Frecuentes</h5>
+            </div>
+            <div class="card-body">
+                {% if servicios_frecuentes %}
+                {% for servicio in servicios_frecuentes %}
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div>
+                        <strong>{{ servicio.servicio__nombre }}</strong>
+                    </div>
+                    <span class="badge badge-primary">{{ servicio.cantidad }}x</span>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">
+                    <i class="fas fa-chart-bar"></i><br>
+                    Sin datos suficientes
+                </p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Acciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-primary btn-block">
+                        <i class="fas fa-calendar-plus"></i> Agendar Cita
+                    </a>
+                    <a href="{% url 'historial_servicios_vehiculo' vehiculo.id %}" class="btn btn-success btn-block">
+                        <i class="fas fa-history"></i> Ver Historial
+                    </a>
+                    <a href="{% url 'estadisticas_vehiculo' vehiculo.id %}" class="btn btn-info btn-block">
+                        <i class="fas fa-chart-line"></i> Estadísticas
+                    </a>
+                    {% if vehiculo.propietario == user or user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+                    <a href="{% url 'editar_vehiculo' vehiculo.id %}" class="btn btn-warning btn-block">
+                        <i class="fas fa-edit"></i> Editar Vehículo
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
