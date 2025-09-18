@@ -1,0 +1,306 @@
+<!-- templates/reportes/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard Reportes{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">📊 Dashboard de Reportes</h1>
+    </div>
+</div>
+
+<!-- Resumen ejecutivo -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ resumen.citas_hoy }}</h4>
+                        <p class="mb-0">Citas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ resumen.citas_mes }}</h4>
+                        <p class="mb-0">Citas Este Mes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>Q{{ resumen.ingresos_mes|floatformat:0 }}</h4>
+                        <p class="mb-0">Ingresos del Mes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-dollar-sign fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ resumen.productos_stock_bajo }}</h4>
+                        <p class="mb-0">Productos Stock Bajo</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos a reportes -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-check fa-3x text-primary mb-3"></i>
+                <h5>Reporte de Citas</h5>
+                <p class="text-muted">Análisis completo de citas por período, estado y categoría</p>
+                <a href="{% url 'reporte_citas' %}" class="btn btn-primary">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-boxes fa-3x text-success mb-3"></i>
+                <h5>Reporte de Inventario</h5>
+                <p class="text-muted">Estado del inventario, alertas y valorización</p>
+                <a href="{% url 'reporte_inventario' %}" class="btn btn-success">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                <h5>Reporte de Ingresos</h5>
+                <p class="text-muted">Análisis financiero por servicios y períodos</p>
+                <a href="{% url 'reporte_ingresos' %}" class="btn btn-warning">Ver Reporte</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de ejemplo -->
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5>Vista Rápida - Últimos 30 Días</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="graficoResumen" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Gráfico básico de ejemplo
+const ctx = document.getElementById('graficoResumen').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Hace 30 días', 'Hace 20 días', 'Hace 10 días', 'Hoy'],
+        datasets: [{
+            label: 'Citas Completadas',
+            data: [12, 19, 15, {{ resumen.citas_hoy }}],
+            borderColor: 'rgb(75, 192, 192)',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Tendencia de Citas Completadas'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+
+<!-- templates/reportes/citas.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte de Citas{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">📅 Reporte de Citas</h2>
+        <div>
+            <a href="{% url 'exportar_reporte_citas' %}?{{ request.GET.urlencode }}" class="btn btn-light btn-sm">
+                <i class="fas fa-download"></i> Exportar CSV
+            </a>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="fecha_inicio">Fecha Inicio:</label>
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" 
+                               class="form-control" value="{{ fecha_inicio }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="fecha_fin">Fecha Fin:</label>
+                        <input type="date" id="fecha_fin" name="fecha_fin" 
+                               class="form-control" value="{{ fecha_fin }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="estado">Estado:</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="">Todos</option>
+                            {% for key, value in estados %}
+                            <option value="{{ key }}" {% if estado_filtro == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" name="categoria" class="form-control">
+                            <option value="">Todas</option>
+                            {% for key, value in categorias %}
+                            <option value="{{ key }}" {% if categoria_filtro == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Filtrar</button>
+                    <a href="{% url 'reporte_citas' %}" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Estadísticas del reporte -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-primary">{{ stats.total_citas }}</h4>
+                        <p class="mb-0">Total Citas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        <h4 class="text-success">Q{{ stats.ingresos_totales|floatformat:2 }}</h4>
+                        <p class="mb-0">Ingresos Totales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6>Por Estado:</h6>
+                        {% for item in stats.por_estado %}
+                        <span class="badge badge-info mr-2">{{ item.estado }}: {{ item.count }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Tabla de citas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cliente</th>
+                        <th>Servicio</th>
+                        <th>Categoría</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Precio</th>
+                        <th>Vehículo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.id }}</td>
+                        <td>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</td>
+                        <td>{{ cita.servicio.nombre }}</td>
+                        <td>
+                            <span class="badge badge-{% if cita.servicio.categoria == 'MECANICO' %}primary{% else %}success{% endif %}">
+                                {{ cita.servicio.get_categoria_display }}
+                            </span>
+                        </td>
+                        <td>{{ cita.fecha }}</td>
+                        <td>
+                            {% if cita.estado == 'COMPLETADA' %}
+                                <span class="badge badge-success">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'CANCELADA' %}
+                                <span class="badge badge-danger">{{ cita.get_estado_display }}</span>
+                            {% elif cita.estado == 'CONFIRMADA' %}
+                                <span class="badge badge-info">{{ cita.get_estado_display }}</span>
+                            {% else %}
+                                <span class="badge badge-warning">{{ cita.get_estado_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>Q{{ cita.servicio.precio }}</td>
+                        <td>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center">No se encontraron citas con los filtros aplicados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

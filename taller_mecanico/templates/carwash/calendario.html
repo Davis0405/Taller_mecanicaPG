@@ -1,0 +1,213 @@
+<!-- carwash/templates/carwash/calendario.html -->
+{% extends "base.html" %}
+
+{% block title %}Calendario Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">🗓️ Calendario de Citas Carwash</h2>
+        <div>
+            <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus"></i> Nueva Cita
+            </a>
+            <a href="{% url 'dashboard_carwash' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="fecha"><i class="fas fa-calendar"></i> Fecha:</label>
+                        <input type="date" id="fecha" name="fecha" class="form-control" value="{{ fecha_filtro }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="estado"><i class="fas fa-filter"></i> Estado:</label>
+                        <select id="estado" name="estado" class="form-control">
+                            <option value="">Todos los estados</option>
+                            {% for key, value in estados_cita %}
+                            <option value="{{ key }}" {% if estado_filtro == key %}selected{% endif %}>{{ value }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-group w-100">
+                        <button type="submit" class="btn btn-primary mr-2">
+                            <i class="fas fa-search"></i> Filtrar
+                        </button>
+                        <a href="{% url 'calendario_carwash' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> Limpiar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Resumen rápido -->
+        {% if fecha_filtro %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <h5><i class="fas fa-info-circle"></i> Resumen para {{ fecha_filtro|date:"l, d F Y" }}</h5>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <strong>Total citas:</strong> {{ citas.count }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Pendientes:</strong> {{ citas|length }}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Confirmadas:</strong> 
+                            {% for cita in citas %}{% if cita.estado == 'CONFIRMADA' %}{{ forloop.counter }}{% endif %}{% endfor %}
+                        </div>
+                        <div class="col-md-3">
+                            <strong>Completadas:</strong>
+                            {% for cita in citas %}{% if cita.estado == 'COMPLETADA' %}{{ forloop.counter }}{% endif %}{% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Tabla de citas -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th><i class="fas fa-clock"></i> Hora</th>
+                        <th><i class="fas fa-calendar"></i> Fecha</th>
+                        <th><i class="fas fa-user"></i> Cliente</th>
+                        <th><i class="fas fa-soap"></i> Servicio</th>
+                        <th><i class="fas fa-car"></i> Vehículo</th>
+                        <th><i class="fas fa-info-circle"></i> Estado</th>
+                        <th><i class="fas fa-dollar-sign"></i> Precio</th>
+                        <th><i class="fas fa-cogs"></i> Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr class="{% if cita.fecha == today %}table-warning{% endif %}">
+                        <td>
+                            <strong>{{ cita.hora_inicio|time:"H:i" }}</strong> - {{ cita.hora_fin|time:"H:i" }}<br>
+                            <small class="text-muted">{{ cita.servicio.duracion }} min</small>
+                        </td>
+                        <td>
+                            {{ cita.fecha|date:"d M Y" }}<br>
+                            <small class="text-muted">{{ cita.fecha|date:"l" }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</strong><br>
+                            {% if cita.cliente.email %}
+                            <small class="text-muted">
+                                <i class="fas fa-envelope"></i> {{ cita.cliente.email }}
+                            </small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge badge-info badge-lg">{{ cita.servicio.nombre }}</span><br>
+                            {% if cita.servicio.descripcion %}
+                            <small class="text-muted">{{ cita.servicio.descripcion|truncatechars:30 }}</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}</strong><br>
+                            <small class="text-muted">
+                                <i class="fas fa-hashtag"></i> {{ cita.vehiculo.placa }} | 
+                                <i class="fas fa-palette"></i> {{ cita.vehiculo.color }}
+                            </small>
+                        </td>
+                        <td>
+                            {% if cita.estado == 'PENDIENTE' %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-clock"></i> {{ cita.get_estado_display }}
+                                </span>
+                            {% elif cita.estado == 'CONFIRMADA' %}
+                                <span class="badge badge-info">
+                                    <i class="fas fa-check-circle"></i> {{ cita.get_estado_display }}
+                                </span>
+                            {% elif cita.estado == 'COMPLETADA' %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-thumbs-up"></i> {{ cita.get_estado_display }}
+                                </span>
+                            {% elif cita.estado == 'CANCELADA' %}
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-times-circle"></i> {{ cita.get_estado_display }}
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <strong class="text-success">Q{{ cita.servicio.precio }}</strong>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                                {% if cita.estado != 'CANCELADA' %}
+                                <a href="{% url 'gestionar_cita' cita.id %}" class="btn btn-sm btn-primary" title="Gestionar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <div>
+                                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No hay citas de carwash</h5>
+                                {% if fecha_filtro or estado_filtro %}
+                                <p class="text-muted">No se encontraron citas con los filtros seleccionados.</p>
+                                <a href="{% url 'calendario_carwash' %}" class="btn btn-outline-primary">
+                                    Ver todas las citas
+                                </a>
+                                {% else %}
+                                <p class="text-muted">Aún no hay citas de carwash programadas.</p>
+                                <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Agendar Primera Cita
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Leyenda de estados -->
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h6><i class="fas fa-info-circle"></i> Leyenda de Estados:</h6>
+                        <span class="badge badge-warning mr-2">
+                            <i class="fas fa-clock"></i> Pendiente
+                        </span>
+                        <span class="badge badge-info mr-2">
+                            <i class="fas fa-check-circle"></i> Confirmada
+                        </span>
+                        <span class="badge badge-success mr-2">
+                            <i class="fas fa-thumbs-up"></i> Completada
+                        </span>
+                        <span class="badge badge-danger mr-2">
+                            <i class="fas fa-times-circle"></i> Cancelada
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

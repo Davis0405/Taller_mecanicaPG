@@ -9,7 +9,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('usuarios/', include('usuarios.urls')),
     path('citas/', include('citas.urls')),
-    path('inventario/', include('inventario.urls')), 
+    path('inventario/', include('inventario.urls')),
+    path('carwash/', include('carwash.urls')),
+    path('reportes/', include('reportes.urls')),
+    path('vehiculos/', include('vehiculos.urls')),
+    path('notificaciones/', include('notificaciones.urls')), 
     path('', RedirectView.as_view(url='usuarios/dashboard/', permanent=True)),  # Redirección a dashboard
 ]
 

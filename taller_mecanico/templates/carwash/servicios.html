@@ -1,0 +1,249 @@
+<!-- carwash/templates/carwash/servicios.html -->
+{% extends "base.html" %}
+
+{% block title %}Servicios Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">🧼 Servicios de Carwash</h2>
+        <div>
+            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+            <a href="{% url 'agregar_servicio' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus"></i> Nuevo Servicio
+            </a>
+            {% endif %}
+            <a href="{% url 'dashboard_carwash' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        <!-- Filtros por precio -->
+        <div class="mb-4">
+            <div class="btn-group" role="group" aria-label="Filtro de precios">
+                <button type="button" class="btn btn-outline-primary active" data-filter="all">
+                    <i class="fas fa-list"></i> Todos
+                </button>
+                <button type="button" class="btn btn-outline-success" data-filter="basic">
+                    <i class="fas fa-dollar-sign"></i> Básicos (Q5-20)
+                </button>
+                <button type="button" class="btn btn-outline-warning" data-filter="premium">
+                    <i class="fas fa-star"></i> Premium (Q20-50)
+                </button>
+                <button type="button" class="btn btn-outline-danger" data-filter="deluxe">
+                    <i class="fas fa-crown"></i> De Lujo (Q50+)
+                </button>
+            </div>
+        </div>
+        
+        {% if servicios %}
+        <!-- Grid de servicios -->
+        <div class="row" id="serviciosContainer">
+            {% for servicio in servicios %}
+            <div class="col-md-4 mb-4 servicio-card" 
+                 data-precio="{{ servicio.precio }}" 
+                 data-categoria="{% if servicio.precio <= 20 %}basic{% elif servicio.precio <= 50 %}premium{% else %}deluxe{% endif %}">
+                <div class="card h-100 {% if servicio.precio <= 20 %}border-success{% elif servicio.precio <= 50 %}border-warning{% else %}border-danger{% endif %}">
+                    <!-- Header del servicio -->
+                    <div class="card-header {% if servicio.precio <= 20 %}bg-success{% elif servicio.precio <= 50 %}bg-warning{% else %}bg-danger{% endif %} text-white">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">
+                                {% if servicio.precio <= 20 %}🧼{% elif servicio.precio <= 50 %}✨{% else %}💎{% endif %}
+                                {{ servicio.nombre }}
+                            </h5>
+                            <span class="badge badge-light text-dark font-weight-bold">
+                                Q{{ servicio.precio }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Cuerpo del servicio -->
+                    <div class="card-body d-flex flex-column">
+                        <p class="card-text">{{ servicio.descripcion|default:"Descripción no disponible" }}</p>
+                        
+                        <!-- Detalles del servicio -->
+                        <div class="mt-auto">
+                            <div class="row text-center mb-3">
+                                <div class="col-6">
+                                    <i class="fas fa-clock text-info"></i><br>
+                                    <strong>{{ servicio.duracion }}</strong><br>
+                                    <small class="text-muted">minutos</small>
+                                </div>
+                                <div class="col-6">
+                                    <i class="fas fa-dollar-sign text-success"></i><br>
+                                    <strong>Q{{ servicio.precio }}</strong><br>
+                                    <small class="text-muted">precio</small>
+                                </div>
+                            </div>
+                            
+                            <!-- Características incluidas -->
+                            <div class="mb-3">
+                                <h6 class="text-muted">Incluye:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    {% if 'Básico' in servicio.nombre %}
+                                        <li><i class="fas fa-check text-success"></i> Lavado exterior</li>
+                                        <li><i class="fas fa-check text-success"></i> Secado</li>
+                                        <li><i class="fas fa-check text-success"></i> Limpieza básica de llantas</li>
+                                    {% elif 'Completo' in servicio.nombre %}
+                                        <li><i class="fas fa-check text-success"></i> Lavado completo exterior</li>
+                                        <li><i class="fas fa-check text-success"></i> Aspirado interior</li>
+                                        <li><i class="fas fa-check text-success"></i> Limpieza de vidrios</li>
+                                        <li><i class="fas fa-check text-success"></i> Ambientador</li>
+                                    {% elif 'Premium' in servicio.nombre %}
+                                        <li><i class="fas fa-check text-success"></i> Servicio completo</li>
+                                        <li><i class="fas fa-check text-success"></i> Encerado</li>
+                                        <li><i class="fas fa-check text-success"></i> Protección UV</li>
+                                        <li><i class="fas fa-check text-success"></i> Pulido de llantas</li>
+                                    {% elif 'Detallado' in servicio.nombre %}
+                                        <li><i class="fas fa-check text-success"></i> Detallado completo</li>
+                                        <li><i class="fas fa-check text-success"></i> Limpieza profunda tapicería</li>
+                                        <li><i class="fas fa-check text-success"></i> Pulido profesional</li>
+                                        <li><i class="fas fa-check text-success"></i> Protección integral</li>
+                                    {% else %}
+                                        <li><i class="fas fa-check text-success"></i> Servicio profesional</li>
+                                        <li><i class="fas fa-check text-success"></i> Atención personalizada</li>
+                                        <li><i class="fas fa-check text-success"></i> Garantía de calidad</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Footer con acciones -->
+                    <div class="card-footer bg-light">
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-primary btn-sm flex-fill mr-1">
+                                <i class="fas fa-calendar-plus"></i> Agendar
+                            </a>
+                            
+                            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'editar_servicio' servicio.id %}" class="btn btn-warning btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'eliminar_servicio' servicio.id %}" class="btn btn-danger btn-sm" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Estadísticas de servicios (solo para staff) -->
+        {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+        <div class="card mt-4 bg-light">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Estadísticas de Servicios</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-primary">{{ estadisticas.total_servicios }}</h4>
+                        <p class="text-muted">Total Servicios</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-success">Q{{ estadisticas.precio_minimo|floatformat:0 }}</h4>
+                        <p class="text-muted">Precio Mínimo</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-warning">Q{{ estadisticas.precio_maximo|floatformat:0 }}</h4>
+                        <p class="text-muted">Precio Máximo</p>
+                    </div>
+                    <div class="col-md-3 text-center">
+                        <h4 class="text-info">Q{{ estadisticas.precio_promedio|floatformat:0 }}</h4>
+                        <p class="text-muted">Precio Promedio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% else %}
+        <!-- Estado vacío -->
+        <div class="text-center py-5">
+            <i class="fas fa-soap fa-5x text-muted mb-4"></i>
+            <h3 class="text-muted">No hay servicios de carwash configurados</h3>
+            <p class="text-muted mb-4">Los servicios aparecerán aquí una vez que sean agregados</p>
+            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+            <a href="{% url 'agregar_servicio' %}" class="btn btn-success btn-lg">
+                <i class="fas fa-plus"></i> Agregar Primer Servicio
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="card mt-4 border-info">
+    <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="fas fa-info-circle"></i> Información sobre Nuestros Servicios</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><i class="fas fa-clock text-info"></i> Horarios de Atención</h6>
+                <ul class="list-unstyled">
+                    <li><strong>Lunes - Viernes:</strong> 8:00 AM - 6:00 PM</li>
+                    <li><strong>Sábados:</strong> 8:00 AM - 5:00 PM</li>
+                    <li><strong>Domingos:</strong> 9:00 AM - 3:00 PM</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-shield-alt text-info"></i> Garantía de Calidad</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-check text-success"></i> Productos de calidad premium</li>
+                    <li><i class="fas fa-check text-success"></i> Personal capacitado</li>
+                    <li><i class="fas fa-check text-success"></i> Satisfacción garantizada</li>
+                </ul>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-phone text-info"></i> Contacto</h6>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-phone"></i> +502 1234-5678</li>
+                    <li><i class="fas fa-envelope"></i> carwash@tallermecánico.gt</li>
+                    <li><i class="fas fa-map-marker-alt"></i> Ciudad de Guatemala</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtros de servicios
+    const btnsFilter = document.querySelectorAll('[data-filter]');
+    const servicioCards = document.querySelectorAll('.servicio-card');
+    
+    btnsFilter.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Remove active class from all buttons
+            btnsFilter.forEach(b => b.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.getAttribute('data-filter');
+            
+            // Filter service cards
+            servicioCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    const categoria = card.getAttribute('data-categoria');
+                    if (categoria === filter) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

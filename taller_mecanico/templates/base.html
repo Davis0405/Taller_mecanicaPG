@@ -26,42 +26,165 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'dashboard' %}">Taller Mecánico</a>
+            <a class="navbar-brand" href="{% url 'dashboard' %}">🔧 Taller Mecánico</a>
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
                     {% if user.is_authenticated %}
+                    
+                    <!-- Módulo de Citas -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="citasDropdown" role="button" data-toggle="dropdown">
+                            📅 Citas
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'mis_citas' %}">Mis Citas</a>
+                            <a class="dropdown-item" href="{% url 'seleccionar_fecha_hora' %}">Nueva Cita</a>
+                            <a class="dropdown-item" href="{% url 'lista_vehiculos' %}">Mis Vehículos</a>
+                            
+                            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' or user.perfil.rol.nombre == 'Mecánico' %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'calendario_citas' %}">Calendario General</a>
+                            <a class="dropdown-item" href="{% url 'lista_servicios' %}">Gestión de Servicios</a>
+                            {% endif %}
+                        </div>
+                    </li>
+
+                    <!-- Módulo Carwash -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="carwashDropdown" role="button" data-toggle="dropdown">
+                            🚗 Carwash
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'dashboard_carwash' %}">Dashboard Carwash</a>
+                            <a class="dropdown-item" href="{% url 'nueva_cita_carwash' %}">Nueva Cita Carwash</a>
+                            <a class="dropdown-item" href="{% url 'mis_citas_carwash' %}">Mis Citas Carwash</a>
+                            
+                            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'calendario_carwash' %}">Calendario Carwash</a>
+                            <a class="dropdown-item" href="{% url 'servicios_carwash' %}">Servicios Carwash</a>
+                            <a class="dropdown-item" href="{% url 'estadisticas_carwash' %}">Estadísticas</a>
+                            {% endif %}
+                        </div>
+                    </li>
+
+                    <!-- Módulo de Vehículos -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="vehiculosDropdown" role="button" data-toggle="dropdown">
+                            🚙 Vehículos
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'dashboard_vehiculos' %}">Gestión de Vehículos</a>
+                            <a class="dropdown-item" href="{% url 'lista_vehiculos' %}">Mis Vehículos</a>
+                            
+                            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'vehiculos_por_cliente' %}">Vehículos por Cliente</a>
+                            {% endif %}
+                        </div>
+                    </li>
+
+                    <!-- Módulo de Inventario -->
+                    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="inventarioDropdown" role="button" data-toggle="dropdown">
+                            📦 Inventario
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'dashboard_inventario' %}">Dashboard Inventario</a>
+                            <a class="dropdown-item" href="{% url 'lista_productos' %}">Productos</a>
+                            <a class="dropdown-item" href="{% url 'agregar_movimiento' %}">Registrar Movimiento</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'lista_alertas' %}">🚨 Alertas</a>
+                            <a class="dropdown-item" href="{% url 'test_notificaciones' %}">🔧 Herramientas</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'lista_proveedores' %}">Proveedores</a>
+                            <a class="dropdown-item" href="{% url 'lista_categorias' %}">Categorías</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'reporte_stock_bajo' %}">Stock Bajo</a>
+                            <a class="dropdown-item" href="{% url 'reporte_valorizado' %}">Reporte Valorizado</a>
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    <!-- Módulo de Reportes -->
+                    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' or user.perfil.rol.nombre == 'Recepcionista' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="reportesDropdown" role="button" data-toggle="dropdown">
+                            📊 Reportes
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'dashboard_reportes' %}">Dashboard Reportes</a>
+                            <a class="dropdown-item" href="{% url 'reporte_citas' %}">Reporte de Citas</a>
+                            <a class="dropdown-item" href="{% url 'reporte_inventario' %}">Reporte de Inventario</a>
+                            <a class="dropdown-item" href="{% url 'reporte_ingresos' %}">Reporte de Ingresos</a>
+                        </div>
+                    </li>
+                    {% endif %}
+
+                    <!-- Módulo de Notificaciones -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificacionesDropdown" role="button" data-toggle="dropdown">
+                            🔔 Notificaciones
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'notificaciones_personales' %}">Mis Notificaciones</a>
+                            <a class="dropdown-item" href="{% url 'configurar_notificaciones_usuario' %}">Configurar</a>
+                            
+                            {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" href="{% url 'dashboard_notificaciones' %}">Admin Notificaciones</a>
+                            <a class="dropdown-item" href="{% url 'configuracion_notificaciones' %}">Configuración SMTP</a>
+                            <a class="dropdown-item" href="{% url 'historial_notificaciones' %}">Historial</a>
+                            <a class="dropdown-item" href="{% url 'alertas_inventario_config' %}">Alertas Inventario</a>
+                            {% endif %}
+                        </div>
+                    </li>
+
+                    {% endif %}
+                </ul>
+                
+                <ul class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    
+                    <!-- Administración -->
+                    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
+                            ⚙️ Admin
+                        </a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" href="{% url 'lista_usuarios' %}">Usuarios</a>
+                            <a class="dropdown-item" href="{% url 'lista_roles' %}">Roles</a>
+                        </div>
+                    </li>
+                    {% endif %}
+                    
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        <a class="nav-link" href="{% url 'profile' %}">👤 Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="nav-link btn btn-link text-decoration-none">🚪 Salir</button>
+                        </form>
+                    </li>
+                    
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
                     </li>
                     {% endif %}
                 </ul>
-                <ul class="navbar-nav">
-                    <ul class="navbar-nav">
-    {% if user.is_authenticated %}
-        {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' %}
-        <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="adminDropdown" role="button" data-toggle="dropdown">
-                Administración
-            </a>
-            <div class="dropdown-menu">
-                <a class="dropdown-item" href="{% url 'lista_usuarios' %}">Usuarios</a>
-                <a class="dropdown-item" href="{% url 'lista_roles' %}">Roles</a>
             </div>
-        </li>
-        {% endif %}
-        
-        
-    {% else %}
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-        </li>
-    {% endif %}
+        </div>
+    </nav>
 
     <div class="collapse navbar-collapse" id="navbarNav">
     <ul class="navbar-nav mr-auto">

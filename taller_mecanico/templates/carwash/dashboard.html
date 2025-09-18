@@ -1,0 +1,231 @@
+<!-- carwash/templates/carwash/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🚗 Dashboard Carwash</h1>
+    </div>
+</div>
+
+<!-- Estadísticas principales -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ citas_pendientes_hoy }}</h4>
+                        <p class="mb-0">Citas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-calendar-day fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ citas_completadas_hoy }}</h4>
+                        <p class="mb-0">Completadas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ total_servicios }}</h4>
+                        <p class="mb-0">Servicios</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-soap fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ proximas_citas.count }}</h4>
+                        <p class="mb-0">Próximas</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-plus-circle fa-3x text-info mb-3"></i>
+                <h5>Nueva Cita Carwash</h5>
+                <p class="text-muted">Agendar nuevo servicio de lavado</p>
+                <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-info">Agendar Cita</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar fa-3x text-primary mb-3"></i>
+                <h5>Calendario Carwash</h5>
+                <p class="text-muted">Ver todas las citas de carwash</p>
+                <a href="{% url 'calendario_carwash' %}" class="btn btn-primary">Ver Calendario</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-cogs fa-3x text-success mb-3"></i>
+                <h5>Gestionar Servicios</h5>
+                <p class="text-muted">Administrar servicios de carwash</p>
+                {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                <a href="{% url 'servicios_carwash' %}" class="btn btn-success">Administrar</a>
+                {% else %}
+                <a href="{% url 'servicios_carwash' %}" class="btn btn-outline-success">Ver Servicios</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenido principal -->
+<div class="row">
+    <!-- Próximas citas -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">🚗 Próximas Citas de Carwash</h5>
+                <a href="{% url 'calendario_carwash' %}" class="btn btn-light btn-sm">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if proximas_citas %}
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Servicio</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                                <th>Vehículo</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in proximas_citas %}
+                            <tr>
+                                <td>
+                                    <strong>{{ cita.cliente.get_full_name|default:cita.cliente.username }}</strong>
+                                </td>
+                                <td>
+                                    <span class="badge badge-info">{{ cita.servicio.nombre }}</span>
+                                </td>
+                                <td>{{ cita.fecha|date:"d M Y" }}</td>
+                                <td>{{ cita.hora_inicio|time:"H:i" }}</td>
+                                <td>
+                                    {{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}<br>
+                                    <small class="text-muted">{{ cita.vehiculo.placa }}</small>
+                                </td>
+                                <td>
+                                    {% if cita.estado == 'PENDIENTE' %}
+                                        <span class="badge badge-warning">{{ cita.get_estado_display }}</span>
+                                    {% elif cita.estado == 'CONFIRMADA' %}
+                                        <span class="badge badge-info">{{ cita.get_estado_display }}</span>
+                                    {% elif cita.estado == 'COMPLETADA' %}
+                                        <span class="badge badge-success">{{ cita.get_estado_display }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No hay citas próximas de carwash</h5>
+                    <p class="text-muted">Las nuevas citas aparecerán aquí</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con información -->
+    <div class="col-md-4">
+        <!-- Servicios disponibles -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">🧼 Servicios de Carwash</h5>
+            </div>
+            <div class="card-body">
+                {% for servicio in servicios_carwash %}
+                <div class="mb-3 p-2 border rounded">
+                    <h6 class="mb-1">{{ servicio.nombre }}</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-success font-weight-bold">Q{{ servicio.precio }}</span>
+                        <small class="text-muted">{{ servicio.duracion }} min</small>
+                    </div>
+                    {% if servicio.descripcion %}
+                    <small class="text-muted">{{ servicio.descripcion|truncatechars:50 }}</small>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted">No hay servicios configurados</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">⚡ Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-info btn-block">
+                        <i class="fas fa-plus"></i> Nueva Cita
+                    </a>
+                    <a href="{% url 'mis_citas_carwash' %}" class="btn btn-outline-primary btn-block">
+                        <i class="fas fa-list"></i> Mis Citas
+                    </a>
+                    {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Recepcionista' %}
+                    <a href="{% url 'estadisticas_carwash' %}" class="btn btn-outline-success btn-block">
+                        <i class="fas fa-chart-bar"></i> Estadísticas
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

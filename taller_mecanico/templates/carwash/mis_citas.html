@@ -1,0 +1,271 @@
+<!-- carwash/templates/carwash/mis_citas.html -->
+{% extends "base.html" %}
+
+{% block title %}Mis Citas Carwash - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">🚗 Mis Citas de Carwash</h2>
+        <div>
+            <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus"></i> Nueva Cita
+            </a>
+            <a href="{% url 'dashboard_carwash' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if citas %}
+            <!-- Pestañas para filtrar citas -->
+            <ul class="nav nav-tabs mb-3" id="citasTabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="proximas-tab" data-toggle="tab" href="#proximas" role="tab">
+                        <i class="fas fa-clock"></i> Próximas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="completadas-tab" data-toggle="tab" href="#completadas" role="tab">
+                        <i class="fas fa-check-circle"></i> Completadas
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="canceladas-tab" data-toggle="tab" href="#canceladas" role="tab">
+                        <i class="fas fa-times-circle"></i> Canceladas
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="tab-content" id="citasTabsContent">
+                <!-- Próximas citas -->
+                <div class="tab-pane fade show active" id="proximas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Fecha</th>
+                                    <th><i class="fas fa-clock"></i> Hora</th>
+                                    <th><i class="fas fa-soap"></i> Servicio</th>
+                                    <th><i class="fas fa-car"></i> Vehículo</th>
+                                    <th><i class="fas fa-dollar-sign"></i> Precio</th>
+                                    <th><i class="fas fa-info-circle"></i> Estado</th>
+                                    <th><i class="fas fa-cogs"></i> Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'PENDIENTE' or cita.estado == 'CONFIRMADA' %}
+                                    <tr class="{% if cita.fecha == today %}table-warning{% endif %}">
+                                        <td>
+                                            <strong>{{ cita.fecha|date:"d M Y" }}</strong><br>
+                                            <small class="text-muted">{{ cita.fecha|date:"l" }}</small>
+                                        </td>
+                                        <td>
+                                            <strong>{{ cita.hora_inicio|time:"H:i" }}</strong><br>
+                                            <small class="text-muted">{{ cita.servicio.duracion }} min</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info badge-lg">{{ cita.servicio.nombre }}</span><br>
+                                            {% if cita.servicio.descripcion %}
+                                            <small class="text-muted">{{ cita.servicio.descripcion|truncatechars:30 }}</small>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <strong>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}</strong><br>
+                                            <small class="text-muted">
+                                                <i class="fas fa-hashtag"></i> {{ cita.vehiculo.placa }}
+                                            </small>
+                                        </td>
+                                        <td>
+                                            <h5 class="text-success mb-0">Q{{ cita.servicio.precio }}</h5>
+                                        </td>
+                                        <td>
+                                            {% if cita.estado == 'PENDIENTE' %}
+                                                <span class="badge badge-warning">
+                                                    <i class="fas fa-clock"></i> Pendiente
+                                                </span>
+                                            {% elif cita.estado == 'CONFIRMADA' %}
+                                                <span class="badge badge-info">
+                                                    <i class="fas fa-check-circle"></i> Confirmada
+                                                </span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group" role="group">
+                                                <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info" title="Ver detalles">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <a href="{% url 'cancelar_cita' cita.id %}" class="btn btn-sm btn-danger" title="Cancelar cita">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center py-4">
+                                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">No tienes citas próximas de carwash</h5>
+                                            <p class="text-muted">¡Agenda tu próximo lavado!</p>
+                                            <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-info">
+                                                <i class="fas fa-plus"></i> Agendar Cita
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Citas completadas -->
+                <div class="tab-pane fade" id="completadas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Fecha</th>
+                                    <th><i class="fas fa-soap"></i> Servicio</th>
+                                    <th><i class="fas fa-car"></i> Vehículo</th>
+                                    <th><i class="fas fa-dollar-sign"></i> Precio</th>
+                                    <th><i class="fas fa-user"></i> Atendido por</th>
+                                    <th><i class="fas fa-cogs"></i> Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'COMPLETADA' %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ cita.fecha|date:"d M Y" }}</strong><br>
+                                            <small class="text-muted">{{ cita.hora_inicio|time:"H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-success">{{ cita.servicio.nombre }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}</strong><br>
+                                            <small class="text-muted">{{ cita.vehiculo.placa }}</small>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">Q{{ cita.servicio.precio }}</strong>
+                                        </td>
+                                        <td>
+                                            {% if cita.atendida_por %}
+                                                {{ cita.atendida_por.get_full_name|default:cita.atendida_por.username }}
+                                            {% else %}
+                                                <span class="text-muted">No especificado</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="6" class="text-center py-4">
+                                            <i class="fas fa-check-circle fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">Aún no has completado ninguna cita de carwash</h5>
+                                            <p class="text-muted">Tus servicios completados aparecerán aquí</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Citas canceladas -->
+                <div class="tab-pane fade" id="canceladas" role="tabpanel">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                                <tr>
+                                    <th><i class="fas fa-calendar"></i> Fecha Original</th>
+                                    <th><i class="fas fa-soap"></i> Servicio</th>
+                                    <th><i class="fas fa-car"></i> Vehículo</th>
+                                    <th><i class="fas fa-times-circle"></i> Fecha Cancelación</th>
+                                    <th><i class="fas fa-cogs"></i> Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for cita in citas %}
+                                    {% if cita.estado == 'CANCELADA' %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ cita.fecha|date:"d M Y" }}</strong><br>
+                                            <small class="text-muted">{{ cita.hora_inicio|time:"H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-secondary">{{ cita.servicio.nombre }}</span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ cita.vehiculo.marca }} {{ cita.vehiculo.modelo }}</strong><br>
+                                            <small class="text-muted">{{ cita.vehiculo.placa }}</small>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">{{ cita.actualizada_el|date:"d M Y H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <a href="{% url 'detalle_cita' cita.id %}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i> Ver
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <i class="fas fa-smile fa-3x text-muted mb-3"></i>
+                                            <h5 class="text-muted">¡Perfecto! No has cancelado ninguna cita</h5>
+                                            <p class="text-muted">Mantén tu historial limpio</p>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Estado vacío -->
+            <div class="text-center py-5">
+                <i class="fas fa-car-wash fa-5x text-muted mb-4"></i>
+                <h3 class="text-muted">¡Aún no tienes citas de carwash!</h3>
+                <p class="text-muted mb-4">Agenda tu primera cita y mantén tu vehículo siempre limpio</p>
+                <a href="{% url 'nueva_cita_carwash' %}" class="btn btn-info btn-lg">
+                    <i class="fas fa-plus"></i> Agendar Mi Primera Cita
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Card informativo -->
+<div class="card mt-4 border-info">
+    <div class="card-header bg-light">
+        <h5 class="mb-0"><i class="fas fa-lightbulb text-warning"></i> Consejos para tu Carwash</h5>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4">
+                <h6><i class="fas fa-clock text-info"></i> Puntualidad</h6>
+                <p class="small text-muted">Llega 10 minutos antes para evitar retrasos</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-shield-alt text-info"></i> Preparación</h6>
+                <p class="small text-muted">Retira objetos de valor y documentos del vehículo</p>
+            </div>
+            <div class="col-md-4">
+                <h6><i class="fas fa-gas-pump text-info"></i> Combustible</h6>
+                <p class="small text-muted">Mantén al menos 1/4 del tanque de gasolina</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
