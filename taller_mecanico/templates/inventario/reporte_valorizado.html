@@ -14,7 +14,7 @@
     </div>
     <div class="card-body">
         <div class="alert alert-info">
-            <strong>Valor Total del Inventario: ${{ total_inventario|floatformat:2 }}</strong>
+            <strong>Valor Total del Inventario: Q{{ total_inventario|floatformat:2 }}</strong>
         </div>
         
         <div class="table-responsive">
@@ -39,8 +39,8 @@
                         </td>
                         <td>{{ item.producto.categoria.nombre|default:"-" }}</td>
                         <td>{{ item.producto.stock_actual }}</td>
-                        <td>${{ item.producto.precio_compra }}</td>
-                        <td><strong>${{ item.producto.valor_inventario|floatformat:2 }}</strong></td>
+                        <td>Q{{ item.producto.precio_compra }}</td>
+                        <td><strong>Q{{ item.producto.valor_inventario|floatformat:2 }}</strong></td>
                         <td>{{ item.porcentaje|floatformat:1 }}%</td>
                     </tr>
                     {% empty %}
@@ -52,7 +52,7 @@
                 <tfoot>
                     <tr class="table-info">
                         <th colspan="5">TOTAL INVENTARIO</th>
-                        <th>${{ total_inventario|floatformat:2 }}</th>
+                        <th>Q{{ total_inventario|floatformat:2 }}</th>
                         <th>100%</th>
                     </tr>
                 </tfoot>

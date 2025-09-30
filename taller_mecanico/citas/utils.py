@@ -71,7 +71,7 @@ def enviar_email_cita(cita, tipo_email, destinatario_email=None):
                     {emoji} {titulo}
                 </h1>
                 <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 16px;">
-                    Taller Mecánico Profesional
+                    Taller Mecánico ASIS7
                 </p>
             </div>
             
@@ -184,7 +184,7 @@ def enviar_email_cita(cita, tipo_email, destinatario_email=None):
             <!-- Footer -->
             <div style="background-color: #343a40; color: white; padding: 20px; text-align: center;">
                 <p style="margin: 0 0 10px 0; font-size: 16px; font-weight: 600;">
-                    🔧 Taller Mecánico Profesional
+                    🔧 Taller Mecánico ASIS7
                 </p>
                 <p style="margin: 0; opacity: 0.8; font-size: 14px;">
                     Tu taller de confianza • Servicio de calidad garantizado
@@ -201,7 +201,7 @@ def enviar_email_cita(cita, tipo_email, destinatario_email=None):
     
     # Mensaje de texto alternativo
     mensaje_texto = f"""
-🔧 TALLER MECÁNICO PROFESIONAL
+🔧 TALLER MECÁNICO ASIS7
 
 {titulo.upper()}
 
@@ -231,7 +231,7 @@ INFORMACIÓN IMPORTANTE:
 ¡Te esperamos!
 
 ---
-Taller Mecánico Profesional
+Taller Mecánico ASIS7
 Tu taller de confianza
     """.strip()
     

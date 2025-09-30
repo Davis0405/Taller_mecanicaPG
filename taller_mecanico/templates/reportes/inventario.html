@@ -1,0 +1,426 @@
+<!-- reportes/templates/reportes/inventario.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte de Inventario{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">📦 Reporte de Inventario</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-light btn-sm">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <a href="{% url 'dashboard_reportes' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" name="categoria" class="form-control">
+                            <option value="">Todas las categorías</option>
+                            {% for categoria in categorias %}
+                            <option value="{{ categoria.id }}" {% if categoria_filtro == categoria.id|stringformat:"s" %}selected{% endif %}>
+                                {{ categoria.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="solo_stock_bajo">Filtro especial:</label>
+                        <select id="solo_stock_bajo" name="solo_stock_bajo" class="form-control">
+                            <option value="">Todos los productos</option>
+                            <option value="true" {% if solo_stock_bajo %}selected{% endif %}>Solo stock bajo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Filtrar</button>
+                    <a href="{% url 'reporte_inventario' %}" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Estadísticas generales -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ stats.total_productos }}</h4>
+                        <p class="mb-0">Total Productos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ stats.valor_total_inventario|floatformat:2 }}</h4>
+                        <p class="mb-0">Valor Total</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ stats.productos_stock_bajo }}</h4>
+                        <p class="mb-0">Stock Bajo</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ stats.productos_agotados }}</h4>
+                        <p class="mb-0">Agotados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Alertas activas -->
+        {% if alertas_activas > 0 %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            <strong>¡Atención!</strong> Hay {{ alertas_activas }} alerta{{ alertas_activas|pluralize }} activa{{ alertas_activas|pluralize }} de inventario.
+            <a href="{% url 'lista_alertas' %}" class="btn btn-warning btn-sm ml-2">
+                Ver Alertas
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- Estadísticas por categoría -->
+        {% if stats_por_categoria %}
+        <div class="card mb-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">📊 Estadísticas por Categoría</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Categoría</th>
+                                <th>Productos</th>
+                                <th>Valor Total</th>
+                                <th>% del Inventario</th>
+                                <th>Gráfico</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for categoria in stats_por_categoria %}
+                            <tr>
+                                <td><strong>{{ categoria.nombre }}</strong></td>
+                                <td>
+                                    <span class="badge badge-primary">{{ categoria.total_productos }}</span>
+                                </td>
+                                <td>
+                                    <strong class="text-success">Q{{ categoria.valor_categoria|default:0|floatformat:2 }}</strong>
+                                </td>
+                                <td>
+                                    {% if stats.valor_total_inventario > 0 %}
+                                        {{ categoria.valor_categoria|default:0|mul:100|div:stats.valor_total_inventario|floatformat:1 }}%
+                                    {% else %}
+                                        0%
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-info" 
+                                             style="width: {% if stats.valor_total_inventario > 0 %}{% widthratio categoria.valor_categoria|default:0 stats.valor_total_inventario 100 %}{% else %}0{% endif %}%">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Tabla de productos -->
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Precio Compra</th>
+                        <th>Precio Venta</th>
+                        <th>Valor Total</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for producto in productos %}
+                    <tr class="{% if producto.stock_actual == 0 %}table-danger{% elif producto.stock_actual <= producto.stock_minimo %}table-warning{% endif %}">
+                        <td>
+                            <a href="{% url 'detalle_producto' producto.id %}">
+                                <strong>{{ producto.codigo }}</strong>
+                            </a>
+                        </td>
+                        <td>
+                            <div>
+                                <strong>{{ producto.nombre }}</strong>
+                                {% if producto.descripcion %}
+                                <br><small class="text-muted">{{ producto.descripcion|truncatechars:40 }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if producto.categoria %}
+                                <span class="badge badge-secondary">{{ producto.categoria.nombre }}</span>
+                            {% else %}
+                                <span class="text-muted">Sin categoría</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            {% if producto.stock_actual == 0 %}
+                                <span class="badge badge-danger badge-lg">{{ producto.stock_actual }}</span>
+                            {% elif producto.stock_actual <= producto.stock_minimo %}
+                                <span class="badge badge-warning badge-lg">{{ producto.stock_actual }}</span>
+                            {% else %}
+                                <span class="badge badge-success badge-lg">{{ producto.stock_actual }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">{{ producto.stock_minimo }}</td>
+                        <td class="text-right">Q{{ producto.precio_compra }}</td>
+                        <td class="text-right">Q{{ producto.precio_venta }}</td>
+                        <td class="text-right">
+                            <strong class="text-success">Q{{ producto.valor_total|floatformat:2 }}</strong>
+                        </td>
+                        <td>
+                            {% if producto.stock_actual == 0 %}
+                                <span class="badge badge-danger">
+                                    <i class="fas fa-times-circle"></i> Agotado
+                                </span>
+                            {% elif producto.stock_actual <= producto.stock_minimo %}
+                                <span class="badge badge-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Stock Bajo
+                                </span>
+                            {% else %}
+                                <span class="badge badge-success">
+                                    <i class="fas fa-check-circle"></i> Normal
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" class="text-center py-4">
+                            <i class="fas fa-box fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">No se encontraron productos</h5>
+                            {% if categoria_filtro or solo_stock_bajo %}
+                            <p class="text-muted">No hay productos que coincidan con los filtros seleccionados.</p>
+                            <a href="{% url 'reporte_inventario' %}" class="btn btn-outline-primary">
+                                Ver todos los productos
+                            </a>
+                            {% else %}
+                            <p class="text-muted">No hay productos registrados en el inventario.</p>
+                            <a href="{% url 'agregar_producto' %}" class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Agregar Primer Producto
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% if productos %}
+                <tfoot class="bg-light">
+                    <tr>
+                        <th colspan="7" class="text-right">VALOR TOTAL DEL INVENTARIO:</th>
+                        <th class="text-right text-success">Q{{ stats.valor_total_inventario|floatformat:2 }}</th>
+                        <th></th>
+                    </tr>
+                </tfoot>
+                {% endif %}
+            </table>
+        </div>
+        
+        <!-- Gráfico de distribución -->
+        {% if productos %}
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Distribución por Estado</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoEstado" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Top 5 Productos por Valor</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoTop5" height="120"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Acciones rápidas -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{% url 'lista_productos' %}?solo_stock_bajo=true" class="btn btn-warning btn-block">
+                            <i class="fas fa-exclamation-triangle"></i><br>Ver Stock Bajo
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'lista_alertas' %}" class="btn btn-danger btn-block">
+                            <i class="fas fa-bell"></i><br>Ver Alertas
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'agregar_producto' %}" class="btn btn-success btn-block">
+                            <i class="fas fa-plus"></i><br>Agregar Producto
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'reporte_valorizado' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-chart-line"></i><br>Reporte Valorizado
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de distribución por estado
+    const ctxEstado = document.getElementById('graficoEstado').getContext('2d');
+    
+    new Chart(ctxEstado, {
+        type: 'doughnut',
+        data: {
+            labels: ['Stock Normal', 'Stock Bajo', 'Agotados'],
+            datasets: [{
+                data: [
+                    {{ stats.total_productos }} - {{ stats.productos_stock_bajo }} - {{ stats.productos_agotados }},
+                    {{ stats.productos_stock_bajo }} - {{ stats.productos_agotados }},
+                    {{ stats.productos_agotados }}
+                ],
+                backgroundColor: [
+                    'rgba(40, 167, 69, 0.8)',   // Verde
+                    'rgba(255, 193, 7, 0.8)',   // Amarillo
+                    'rgba(220, 53, 69, 0.8)'    // Rojo
+                ],
+                borderColor: [
+                    'rgba(40, 167, 69, 1)',
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(220, 53, 69, 1)'
+                ],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                }
+            }
+        }
+    });
+    
+    // Gráfico Top 5 productos por valor
+    const ctxTop5 = document.getElementById('graficoTop5').getContext('2d');
+    
+    // Datos de los top 5 productos (simulados - en producción vendrían del backend)
+    const top5Data = [
+        {% for producto in productos|slice:":5" %}
+        {
+            label: '{{ producto.nombre|truncatechars:15 }}',
+            value: {{ producto.valor_total|default:0 }}
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    new Chart(ctxTop5, {
+        type: 'bar',
+        data: {
+            labels: top5Data.map(item => item.label),
+            datasets: [{
+                label: 'Valor (Q)',
+                data: top5Data.map(item => item.value),
+                backgroundColor: 'rgba(54, 162, 235, 0.8)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return 'Q' + value.toFixed(2);
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+});
+</script>
+
+<style>
+.badge-lg {
+    font-size: 1em;
+    padding: 0.5rem 0.75rem;
+}
+
+@media print {
+    .btn, .card-header .btn {
+        display: none !important;
+    }
+    
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    .table th, .table td {
+        font-size: 12px !important;
+        padding: 5px !important;
+    }
+}
+</style>
+{% endblock %}

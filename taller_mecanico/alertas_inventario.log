@@ -101,3 +101,142 @@
 2025-05-23 15:12:19,866 - INFO - ✓ Alertas resueltas: 0
 2025-05-23 15:12:19,867 - INFO - ✓ Emails enviados: 0
 2025-05-23 15:12:19,867 - INFO - ============================================================
+2025-09-20 07:53:10,813 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 07:53:10,814 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 07:53:10,825 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 07:53:10,844 - INFO - ============================================================
+2025-09-20 07:53:10,845 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 07:53:10,845 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 07:53:10,845 - INFO - ✓ Emails enviados: 0
+2025-09-20 07:53:10,845 - INFO - ============================================================
+2025-09-20 07:54:37,526 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 07:54:37,527 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 07:54:37,541 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 07:54:37,555 - INFO - ============================================================
+2025-09-20 07:54:37,555 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 07:54:37,555 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 07:54:37,556 - INFO - ✓ Emails enviados: 0
+2025-09-20 07:54:37,556 - INFO - ============================================================
+2025-09-20 07:54:58,065 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 07:54:58,066 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 07:54:58,079 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 07:54:58,092 - INFO - ============================================================
+2025-09-20 07:54:58,092 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 07:54:58,092 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 07:54:58,092 - INFO - ✓ Emails enviados: 0
+2025-09-20 07:54:58,092 - INFO - ============================================================
+2025-09-20 07:56:57,254 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 07:56:57,254 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 07:56:57,266 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 07:56:57,276 - INFO - ============================================================
+2025-09-20 07:56:57,277 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 07:56:57,277 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 07:56:57,277 - INFO - ✓ Emails enviados: 0
+2025-09-20 07:56:57,277 - INFO - ============================================================
+2025-09-20 07:57:06,199 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 07:57:06,200 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 07:57:06,210 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 07:57:06,225 - INFO - ============================================================
+2025-09-20 07:57:06,225 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 07:57:06,225 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 07:57:06,226 - INFO - ✓ Emails enviados: 0
+2025-09-20 07:57:06,226 - INFO - ============================================================
+2025-09-20 08:07:25,296 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 08:07:25,297 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 08:07:25,312 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 08:07:25,340 - INFO - 📝 Alerta actualizada: Aceite Motor 10W-40 Sintético 4L
+2025-09-20 08:07:25,343 - INFO - ============================================================
+2025-09-20 08:07:25,344 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 08:07:25,344 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 08:07:25,344 - INFO - ✓ Emails enviados: 0
+2025-09-20 08:07:25,344 - INFO - ============================================================
+2025-09-20 08:07:35,047 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 08:07:35,048 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 08:07:35,059 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 08:07:35,080 - INFO - ============================================================
+2025-09-20 08:07:35,080 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 08:07:35,081 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 08:07:35,081 - INFO - ✓ Emails enviados: 0
+2025-09-20 08:07:35,081 - INFO - ============================================================
+2025-09-20 08:07:59,966 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 08:07:59,966 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 08:07:59,979 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 08:07:59,994 - INFO - ============================================================
+2025-09-20 08:07:59,994 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 08:07:59,994 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 08:07:59,995 - INFO - ✓ Emails enviados: 0
+2025-09-20 08:07:59,995 - INFO - ============================================================
+2025-09-20 08:11:57,610 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 08:11:57,610 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 08:11:57,622 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 08:11:57,640 - INFO - ============================================================
+2025-09-20 08:11:57,640 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 08:11:57,640 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 08:11:57,641 - INFO - ✓ Emails enviados: 0
+2025-09-20 08:11:57,641 - INFO - ============================================================
+2025-09-20 08:16:12,698 - INFO - Iniciando generación de alertas de inventario...
+2025-09-20 08:16:12,698 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-20 08:16:12,709 - INFO - Encontrados 15 productos con stock bajo o agotado
+2025-09-20 08:16:12,724 - INFO - ============================================================
+2025-09-20 08:16:12,724 - INFO - ✓ Alertas nuevas: 0
+2025-09-20 08:16:12,725 - INFO - ✓ Alertas resueltas: 0
+2025-09-20 08:16:12,725 - INFO - ✓ Emails enviados: 0
+2025-09-20 08:16:12,725 - INFO - ============================================================
+2025-09-30 13:00:22,600 - INFO - Iniciando generación de alertas de inventario...
+2025-09-30 13:00:22,601 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-30 13:00:22,613 - INFO - Encontrados 14 productos con stock bajo o agotado
+2025-09-30 13:00:22,629 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Aceite Motor 20W-50 4L
+2025-09-30 13:00:23,885 - INFO - Alerta enviada por email: Aceite Motor 20W-50 4L a 1 destinatarios
+2025-09-30 13:00:23,893 - INFO - 📧 Email enviado para nueva alerta: Aceite Motor 20W-50 4L
+2025-09-30 13:00:23,900 - INFO - 📝 Alerta actualizada: Aceite Motor 10W-40 Sintético 4L
+2025-09-30 13:00:25,125 - INFO - Alerta enviada por email: Aceite Motor 10W-40 Sintético 4L a 1 destinatarios
+2025-09-30 13:00:25,137 - INFO - 📧 Email enviado para alerta existente: Aceite Motor 10W-40 Sintético 4L
+2025-09-30 13:00:25,146 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Aceite Transmisión ATF
+2025-09-30 13:00:26,324 - INFO - Alerta enviada por email: Aceite Transmisión ATF a 1 destinatarios
+2025-09-30 13:00:26,333 - INFO - 📧 Email enviado para nueva alerta: Aceite Transmisión ATF
+2025-09-30 13:00:26,340 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Filtro de Aceite Universal
+2025-09-30 13:00:27,559 - INFO - Alerta enviada por email: Filtro de Aceite Universal a 1 destinatarios
+2025-09-30 13:00:27,576 - INFO - 📧 Email enviado para nueva alerta: Filtro de Aceite Universal
+2025-09-30 13:00:27,582 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Filtro de Aire Universal
+2025-09-30 13:00:28,720 - INFO - Alerta enviada por email: Filtro de Aire Universal a 1 destinatarios
+2025-09-30 13:00:28,733 - INFO - 📧 Email enviado para nueva alerta: Filtro de Aire Universal
+2025-09-30 13:00:28,741 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Filtro de Combustible
+2025-09-30 13:00:29,890 - INFO - Alerta enviada por email: Filtro de Combustible a 1 destinatarios
+2025-09-30 13:00:29,902 - INFO - 📧 Email enviado para nueva alerta: Filtro de Combustible
+2025-09-30 13:00:29,910 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Pastillas de Freno Delanteras
+2025-09-30 13:00:31,009 - INFO - Alerta enviada por email: Pastillas de Freno Delanteras a 1 destinatarios
+2025-09-30 13:00:31,021 - INFO - 📧 Email enviado para nueva alerta: Pastillas de Freno Delanteras
+2025-09-30 13:00:31,028 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Pastillas de Freno Traseras
+2025-09-30 13:00:32,085 - INFO - Alerta enviada por email: Pastillas de Freno Traseras a 1 destinatarios
+2025-09-30 13:00:32,093 - INFO - 📧 Email enviado para nueva alerta: Pastillas de Freno Traseras
+2025-09-30 13:00:32,099 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Líquido de Frenos DOT 3
+2025-09-30 13:00:33,270 - INFO - Alerta enviada por email: Líquido de Frenos DOT 3 a 1 destinatarios
+2025-09-30 13:00:33,282 - INFO - 📧 Email enviado para nueva alerta: Líquido de Frenos DOT 3
+2025-09-30 13:00:33,289 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Llave de Tubo 10mm
+2025-09-30 13:00:34,474 - INFO - Alerta enviada por email: Llave de Tubo 10mm a 1 destinatarios
+2025-09-30 13:00:34,486 - INFO - 📧 Email enviado para nueva alerta: Llave de Tubo 10mm
+2025-09-30 13:00:34,493 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Destornillador Plano
+2025-09-30 13:00:35,769 - INFO - Alerta enviada por email: Destornillador Plano a 1 destinatarios
+2025-09-30 13:00:35,782 - INFO - 📧 Email enviado para nueva alerta: Destornillador Plano
+2025-09-30 13:00:35,792 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Champú para Auto 1L
+2025-09-30 13:00:36,833 - INFO - Alerta enviada por email: Champú para Auto 1L a 1 destinatarios
+2025-09-30 13:00:36,844 - INFO - 📧 Email enviado para nueva alerta: Champú para Auto 1L
+2025-09-30 13:00:36,851 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Cera Liquida 500ml
+2025-09-30 13:00:37,998 - INFO - Alerta enviada por email: Cera Liquida 500ml a 1 destinatarios
+2025-09-30 13:00:38,010 - INFO - 📧 Email enviado para nueva alerta: Cera Liquida 500ml
+2025-09-30 13:00:38,018 - INFO - 🚨 Nueva alerta creada: STOCK_AGOTADO para Limpiador de Llantas 500ml
+2025-09-30 13:00:39,049 - INFO - Alerta enviada por email: Limpiador de Llantas 500ml a 1 destinatarios
+2025-09-30 13:00:39,064 - INFO - 📧 Email enviado para nueva alerta: Limpiador de Llantas 500ml
+2025-09-30 13:00:39,065 - INFO - ============================================================
+2025-09-30 13:00:39,065 - INFO - ✓ Alertas nuevas: 13
+2025-09-30 13:00:39,065 - INFO - ✓ Alertas resueltas: 0
+2025-09-30 13:00:39,065 - INFO - ✓ Emails enviados: 14
+2025-09-30 13:00:39,065 - INFO - ============================================================
+2025-09-30 13:53:38,787 - INFO - Iniciando generación de alertas de inventario...
+2025-09-30 13:53:38,787 - INFO - Configuración: Enviar emails: True, Resumen diario: False, Forzar email: False
+2025-09-30 13:53:38,823 - INFO - Encontrados 14 productos con stock bajo o agotado
+2025-09-30 13:53:38,842 - INFO - ============================================================
+2025-09-30 13:53:38,842 - INFO - ✓ Alertas nuevas: 0
+2025-09-30 13:53:38,843 - INFO - ✓ Alertas resueltas: 0
+2025-09-30 13:53:38,843 - INFO - ✓ Emails enviados: 0
+2025-09-30 13:53:38,843 - INFO - ============================================================

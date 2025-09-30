@@ -88,8 +88,8 @@
                         </td>
                         <td>{{ movimiento.get_motivo_display }}</td>
                         <td>{{ movimiento.cantidad }}</td>
-                        <td>${{ movimiento.precio_unitario }}</td>
-                        <td><strong>${{ movimiento.valor_total|floatformat:2 }}</strong></td>
+                        <td>Q{{ movimiento.precio_unitario }}</td>
+                        <td><strong>Q{{ movimiento.valor_total|floatformat:2 }}</strong></td>
                         <td>{{ movimiento.stock_anterior }}</td>
                         <td>{{ movimiento.stock_nuevo }}</td>
                         <td>{{ movimiento.usuario.username|default:"-" }}</td>

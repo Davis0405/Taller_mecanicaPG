@@ -40,7 +40,7 @@ def dashboard_reportes(request):
         ).aggregate(total=Sum('servicio__precio'))['total'] or 0,
         'productos_stock_bajo': Producto.objects.filter(
             activo=True,
-            stock_actual__lte=F('stock_minimo')
+            stock_actual__lte=('stock_minimo')
         ).count(),
     }
     

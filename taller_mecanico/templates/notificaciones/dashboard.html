@@ -1,0 +1,519 @@
+<!-- notificaciones/templates/notificaciones/dashboard.html -->
+{% extends "base.html" %}
+
+{% block title %}Dashboard Notificaciones - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">🔔 Dashboard de Notificaciones</h1>
+    </div>
+</div>
+
+<!-- Estadísticas principales -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.notificaciones_hoy }}</h4>
+                        <p class="mb-0">Enviadas Hoy</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-envelope fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.emails_enviados_semana }}</h4>
+                        <p class="mb-0">Emails esta Semana</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-check-circle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.alertas_inventario_activas }}</h4>
+                        <p class="mb-0">Alertas Inventario</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4>{{ stats.recordatorios_pendientes }}</h4>
+                        <p class="mb-0">Recordatorios Pendientes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="fas fa-clock fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Accesos rápidos -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-cog fa-3x text-primary mb-3"></i>
+                <h5>Configuración</h5>
+                <p class="text-muted">Configurar SMTP y parámetros</p>
+                <a href="{% url 'configuracion_notificaciones' %}" class="btn btn-primary">Configurar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-paper-plane fa-3x text-success mb-3"></i>
+                <h5>Enviar Recordatorios</h5>
+                <p class="text-muted">Envío manual de recordatorios</p>
+                <a href="{% url 'enviar_recordatorios_manual' %}" class="btn btn-success">Enviar</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-history fa-3x text-info mb-3"></i>
+                <h5>Historial</h5>
+                <p class="text-muted">Ver historial completo</p>
+                <a href="{% url 'historial_notificaciones' %}" class="btn btn-info">Ver Historial</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-boxes fa-3x text-warning mb-3"></i>
+                <h5>Alertas Inventario</h5>
+                <p class="text-muted">Gestionar alertas de stock</p>
+                <a href="{% url 'alertas_inventario_config' %}" class="btn btn-warning">Gestionar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Últimas notificaciones -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">📧 Últimas Notificaciones</h5>
+                <a href="{% url 'historial_notificaciones' %}" class="btn btn-light btn-sm">Ver Todas</a>
+            </div>
+            <div class="card-body">
+                {% if ultimas_notificaciones %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Cliente</th>
+                                <th>Cita</th>
+                                <th>Estado</th>
+                                <th>Fecha Envío</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for notificacion in ultimas_notificaciones %}
+                            <tr>
+                                <td>
+                                    {% if notificacion.tipo == 'RECORDATORIO' %}
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-bell"></i> Recordatorio
+                                        </span>
+                                    {% elif notificacion.tipo == 'CONFIRMACION' %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check"></i> Confirmación
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-exchange-alt"></i> Cambio Estado
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ notificacion.cita.cliente.get_full_name|default:notificacion.cita.cliente.username }}</strong><br>
+                                    <small class="text-muted">{{ notificacion.cita.cliente.email|default:"Sin email" }}</small>
+                                </td>
+                                <td>
+                                    <div>
+                                        <strong>{{ notificacion.cita.servicio.nombre }}</strong><br>
+                                        <small class="text-muted">
+                                            {{ notificacion.cita.fecha|date:"d M Y" }} - {{ notificacion.cita.hora_inicio|time:"H:i" }}
+                                        </small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if notificacion.enviado %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check-circle"></i> Enviado
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-times-circle"></i> Fallido
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ notificacion.fecha_envio|date:"d M Y H:i" }}<br>
+                                    <small class="text-muted">{{ notificacion.fecha_envio|timesince }} ago</small>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No hay notificaciones recientes</h5>
+                    <p class="text-muted">Las notificaciones enviadas aparecerán aquí</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con alertas e información -->
+    <div class="col-md-4">
+        <!-- Alertas de inventario -->
+        <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">⚠️ Alertas Recientes</h5>
+            </div>
+            <div class="card-body">
+                {% if alertas_recientes %}
+                {% for alerta in alertas_recientes %}
+                <div class="alert alert-{% if alerta.prioridad == 'CRITICA' %}danger{% elif alerta.prioridad == 'ALTA' %}warning{% else %}info{% endif %} alert-sm mb-2">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Alertas Inventario</span>
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> Activo
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Última Verificación</span>
+                        <small class="text-muted">{{ "now"|date:"d M H:i" }}</small>
+                    </div>
+                </div>
+                
+                <div class="text-center">
+                    <button class="btn btn-success btn-sm" id="testEmail">
+                        <i class="fas fa-paper-plane"></i> Probar Email
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Gráfico de actividad -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-line"></i> Actividad de Notificaciones (Últimos 7 días)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="graficoActividad" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones administrativas -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Herramientas Administrativas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-primary btn-block" onclick="enviarRecordatorios()">
+                            <i class="fas fa-bell"></i><br>Recordatorios
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-success btn-block" onclick="generarAlertas()">
+                            <i class="fas fa-exclamation-triangle"></i><br>Gen. Alertas
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-warning btn-block" onclick="resumenDiario()">
+                            <i class="fas fa-file-alt"></i><br>Resumen
+                        </button>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'historial_notificaciones' %}" class="btn btn-outline-info btn-block">
+                            <i class="fas fa-history"></i><br>Historial
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'configuracion_notificaciones' %}" class="btn btn-outline-secondary btn-block">
+                            <i class="fas fa-cog"></i><br>Configurar
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-dark btn-block" onclick="limpiarLogs()">
+                            <i class="fas fa-trash"></i><br>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de resultados -->
+<div class="modal fade" id="resultadosModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resultado de la Acción</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de actividad
+    const ctx = document.getElementById('graficoActividad').getContext('2d');
+    
+    // Datos simulados para los últimos 7 días
+    const diasSemana = ['Hace 6 días', 'Hace 5 días', 'Hace 4 días', 'Hace 3 días', 'Hace 2 días', 'Ayer', 'Hoy'];
+    const recordatorios = [3, 5, 2, 8, 4, 6, {{ stats.notificaciones_hoy }}];
+    const confirmaciones = [2, 3, 1, 5, 3, 4, 2];
+    const alertas = [1, 0, 2, 1, 0, 1, {{ stats.alertas_inventario_activas }}];
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: diasSemana,
+            datasets: [{
+                label: 'Recordatorios',
+                data: recordatorios,
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Confirmaciones',
+                data: confirmaciones,
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.4
+            }, {
+                label: 'Alertas',
+                data: alertas,
+                borderColor: 'rgb(255, 99, 132)',
+                backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Actividad Diaria de Notificaciones'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+    
+    // Test de email
+    document.getElementById('testEmail').addEventListener('click', function() {
+        this.disabled = true;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+        
+        fetch('{% url "test_configuracion_email" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            mostrarModal(
+                data.success ? 'Email de Prueba Enviado' : 'Error al Enviar Email',
+                data.mensaje || data.error,
+                data.success ? 'success' : 'danger'
+            );
+        })
+        .catch(error => {
+            mostrarModal('Error', 'Error de conexión: ' + error.message, 'danger');
+        })
+        .finally(() => {
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-paper-plane"></i> Probar Email';
+        });
+    });
+});
+
+// Funciones para acciones administrativas
+function enviarRecordatorios() {
+    ejecutarAccion('recordatorios', 'Enviando recordatorios...');
+}
+
+function generarAlertas() {
+    ejecutarAccion('alertas', 'Generando alertas de inventario...');
+}
+
+function resumenDiario() {
+    ejecutarAccion('resumen', 'Enviando resumen diario...');
+}
+
+function limpiarLogs() {
+    if (confirm('¿Estás seguro de que quieres limpiar los logs antiguos?')) {
+        ejecutarAccion('limpiar', 'Limpiando logs...');
+    }
+}
+
+function ejecutarAccion(accion, mensaje) {
+    // Deshabilitar todos los botones
+    document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+    
+    // Mostrar estado de carga
+    mostrarModal('Procesando', '<i class="fas fa-spinner fa-spin"></i> ' + mensaje, 'info');
+    
+    // Simular llamada AJAX (aquí iría la llamada real)
+    setTimeout(() => {
+        const exito = Math.random() > 0.2; // 80% de éxito simulado
+        
+        if (exito) {
+            mostrarModal(
+                'Acción Completada',
+                `La acción "${accion}" se ejecutó correctamente.`,
+                'success'
+            );
+        } else {
+            mostrarModal(
+                'Error en la Acción',
+                `Hubo un problema al ejecutar "${accion}". Por favor, inténtalo de nuevo.`,
+                'danger'
+            );
+        }
+        
+        // Rehabilitar botones
+        document.querySelectorAll('.btn').forEach(btn => btn.disabled = false);
+    }, 2000);
+}
+
+function mostrarModal(titulo, contenido, tipo) {
+    document.querySelector('#resultadosModal .modal-title').textContent = titulo;
+    document.getElementById('modalBody').innerHTML = `
+        <div class="alert alert-${tipo}">
+            ${contenido}
+        </div>
+    `;
+    $('#resultadosModal').modal('show');
+}
+
+// Auto-actualizar estadísticas cada 5 minutos
+setInterval(function() {
+    // Aquí se podría hacer una llamada AJAX para actualizar las estadísticas
+    console.log('Actualizando estadísticas...');
+}, 300000); // 5 minutos
+</script>
+
+<!-- CSRF Token para AJAX -->
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+{% endblock %} justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <strong>{{ alerta.producto.nombre }}</strong><br>
+                            <small>{{ alerta.mensaje }}</small>
+                        </div>
+                        <small class="text-muted">
+                            {{ alerta.fecha_creacion|timesince }}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'lista_alertas' %}" class="btn btn-warning btn-sm">
+                        Ver Todas las Alertas
+                    </a>
+                </div>
+                {% else %}
+                <div class="text-center text-muted">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <p class="mb-0">No hay alertas activas</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Estado del sistema -->
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">📊 Estado del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Configuración SMTP</span>
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> Activo
+                        </span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Recordatorios Automáticos</span>
+                        <span class="badge badge-success">
+                            <i class="fas fa-check"></i> Habilitado
+                        </span>
+                    </div>
+                    <div class="d-flex

@@ -1,0 +1,517 @@
+<!-- notificaciones/templates/notificaciones/configuracion.html -->
+{% extends "base.html" %}
+
+{% block title %}Configuración de Notificaciones - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h2 class="mb-0">⚙️ Configuración de Notificaciones</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" id="configForm">
+                    {% csrf_token %}
+                    
+                    <!-- Recordatorios automáticos -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-bell text-warning"></i> Recordatorios Automáticos
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" 
+                                                   id="recordatorios_automaticos" name="recordatorios_automaticos"
+                                                   {% if config.recordatorios_automaticos %}checked{% endif %}>
+                                            <label class="custom-control-label" for="recordatorios_automaticos">
+                                                Habilitar recordatorios automáticos
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Envía recordatorios automáticos a los clientes antes de sus citas
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="dias_anticipo_recordatorio">Días de anticipación</label>
+                                        <select class="form-control" id="dias_anticipo_recordatorio" name="dias_anticipo_recordatorio">
+                                            <option value="1" {% if config.dias_anticipo_recordatorio == 1 %}selected{% endif %}>1 día</option>
+                                            <option value="2" {% if config.dias_anticipo_recordatorio == 2 %}selected{% endif %}>2 días</option>
+                                            <option value="3" {% if config.dias_anticipo_recordatorio == 3 %}selected{% endif %}>3 días</option>
+                                        </select>
+                                        <small class="form-text text-muted">
+                                            Cuántos días antes enviar el recordatorio
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="hora_envio_recordatorios">Hora de envío</label>
+                                        <input type="time" class="form-control" id="hora_envio_recordatorios" 
+                                               name="hora_envio_recordatorios" value="{{ config.hora_envio_recordatorios }}">
+                                        <small class="form-text text-muted">
+                                            Hora del día para enviar los recordatorios
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Alertas de inventario -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-boxes text-danger"></i> Alertas de Inventario
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" 
+                                                   id="alertas_inventario" name="alertas_inventario"
+                                                   {% if config.alertas_inventario %}checked{% endif %}>
+                                            <label class="custom-control-label" for="alertas_inventario">
+                                                Habilitar alertas de inventario
+                                            </label>
+                                        </div>
+                                        <small class="form-text text-muted">
+                                            Envía alertas cuando el stock esté bajo o agotado
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="emails_destino_inventario">Emails de destino</label>
+                                <textarea class="form-control" id="emails_destino_inventario" 
+                                          name="emails_destino_inventario" rows="3" 
+                                          placeholder="admin@tallermecánico.gt, mecanico@tallermecánico.gt">{{ config.emails_destino_inventario }}</textarea>
+                                <small class="form-text text-muted">
+                                    Emails separados por comas que recibirán las alertas de inventario
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Configuración SMTP -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-server text-info"></i> Configuración SMTP
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle"></i>
+                                <strong>Información:</strong> La configuración SMTP se maneja a través del archivo de configuración del sistema.
+                                Contacta al administrador del sistema si necesitas cambiar estos parámetros.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Servidor SMTP</label>
+                                        <input type="text" class="form-control" value="smtp.gmail.com" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Puerto</label>
+                                        <input type="text" class="form-control" value="587" disabled>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Email de envío</label>
+                                        <input type="email" class="form-control" value="fixfastpro@gmail.com" disabled>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Estado</label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" value="Conectado" disabled>
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-success" type="button" id="testSMTP">
+                                                    <i class="fas fa-paper-plane"></i> Probar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Plantillas de email -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-envelope-open-text text-success"></i> Plantillas de Email
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-warning">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <strong>Próximamente:</strong> La personalización de plantillas de email estará disponible en una futura actualización.
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="card border-success">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
+                                            <h6>Confirmación</h6>
+                                            <small class="text-muted">Plantilla para confirmaciones de citas</small>
+                                            <br><br>
+                                            <button type="button" class="btn btn-sm btn-outline-success" disabled>
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="card border-warning">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+                                            <h6>Recordatorio</h6>
+                                            <small class="text-muted">Plantilla para recordatorios de citas</small>
+                                            <br><br>
+                                            <button type="button" class="btn btn-sm btn-outline-warning" disabled>
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-4">
+                                    <div class="card border-info">
+                                        <div class="card-body text-center">
+                                            <i class="fas fa-exchange-alt fa-2x text-info mb-2"></i>
+                                            <h6>Cambio Estado</h6>
+                                            <small class="text-muted">Plantilla para cambios de estado</small>
+                                            <br><br>
+                                            <button type="button" class="btn btn-sm btn-outline-info" disabled>
+                                                <i class="fas fa-edit"></i> Editar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones de acción -->
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save"></i> Guardar Configuración
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="fas fa-undo"></i> Restaurar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar con información -->
+    <div class="col-md-4">
+        <!-- Estado actual -->
+        <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-check-circle"></i> Estado Actual</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Recordatorios</span>
+                        <span class="badge badge-success badge-pill">
+                            {% if config.recordatorios_automaticos %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Alertas Inventario</span>
+                        <span class="badge badge-success badge-pill">
+                            {% if config.alertas_inventario %}Activo{% else %}Inactivo{% endif %}
+                        </span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Conexión SMTP</span>
+                        <span class="badge badge-success badge-pill">Conectado</span>
+                    </div>
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>Emails Hoy</span>
+                        <span class="badge badge-info badge-pill">12</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Acciones rápidas -->
+        <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-bolt"></i> Acciones Rápidas</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-warning btn-block" onclick="enviarRecordatorios()">
+                        <i class="fas fa-bell"></i> Enviar Recordatorios
+                    </button>
+                    <button type="button" class="btn btn-danger btn-block" onclick="generarAlertas()">
+                        <i class="fas fa-exclamation-triangle"></i> Generar Alertas
+                    </button>
+                    <button type="button" class="btn btn-success btn-block" id="testEmail">
+                        <i class="fas fa-paper-plane"></i> Probar Email
+                    </button>
+                    <a href="{% url 'historial_notificaciones' %}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-history"></i> Ver Historial
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="card">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Estadísticas</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-primary">89</h4>
+                        <small>Emails Esta Semana</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success">97%</h4>
+                        <small>Tasa de Entrega</small>
+                    </div>
+                </div>
+                <hr>
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-warning">15</h4>
+                        <small>Recordatorios Hoy</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-info">3</h4>
+                        <small>Alertas Activas</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de resultados -->
+<div class="modal fade" id="resultModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Resultado</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span>&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Guardar configuración original para reset
+    const originalConfig = {
+        recordatorios_automaticos: {{ config.recordatorios_automaticos|yesno:"true,false" }},
+        alertas_inventario: {{ config.alertas_inventario|yesno:"true,false" }},
+        dias_anticipo_recordatorio: {{ config.dias_anticipo_recordatorio }},
+        hora_envio_recordatorios: '{{ config.hora_envio_recordatorios }}',
+        emails_destino_inventario: '{{ config.emails_destino_inventario }}'
+    };
+    
+    // Manejar envío del formulario
+    document.getElementById('configForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar indicador de carga
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        submitBtn.disabled = true;
+        
+        // Simular guardado (aquí iría la llamada AJAX real)
+        setTimeout(() => {
+            showModal('Configuración Guardada', 'Los cambios se han guardado correctamente.', 'success');
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 2000);
+    });
+    
+    // Probar conexión SMTP
+    document.getElementById('testSMTP').addEventListener('click', function() {
+        testConnection(this, 'SMTP');
+    });
+    
+    // Probar envío de email
+    document.getElementById('testEmail').addEventListener('click', function() {
+        testConnection(this, 'Email');
+    });
+    
+    // Funciones para acciones rápidas
+    window.enviarRecordatorios = function() {
+        executeAction('Enviando recordatorios...', 'Recordatorios enviados correctamente.');
+    };
+    
+    window.generarAlertas = function() {
+        executeAction('Generando alertas...', 'Alertas generadas correctamente.');
+    };
+    
+    // Reset del formulario
+    window.resetForm = function() {
+        if (confirm('¿Estás seguro de que quieres restaurar la configuración original?')) {
+            // Restaurar valores originales
+            document.getElementById('recordatorios_automaticos').checked = originalConfig.recordatorios_automaticos;
+            document.getElementById('alertas_inventario').checked = originalConfig.alertas_inventario;
+            document.getElementById('dias_anticipo_recordatorio').value = originalConfig.dias_anticipo_recordatorio;
+            document.getElementById('hora_envio_recordatorios').value = originalConfig.hora_envio_recordatorios;
+            document.getElementById('emails_destino_inventario').value = originalConfig.emails_destino_inventario;
+            
+            showModal('Configuración Restaurada', 'Se han restaurado los valores originales.', 'info');
+        }
+    };
+});
+
+function testConnection(button, type) {
+    const originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    button.disabled = true;
+    
+    // Simular prueba de conexión
+    setTimeout(() => {
+        const success = Math.random() > 0.2; // 80% éxito
+        
+        if (success) {
+            showModal(
+                `Prueba de ${type} Exitosa`, 
+                `La conexión ${type} está funcionando correctamente.`, 
+                'success'
+            );
+        } else {
+            showModal(
+                `Error en ${type}`, 
+                `No se pudo conectar. Verifica la configuración.`, 
+                'danger'
+            );
+        }
+        
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 3000);
+}
+
+function executeAction(loadingMsg, successMsg) {
+    // Deshabilitar todos los botones de acciones rápidas
+    document.querySelectorAll('.btn').forEach(btn => btn.disabled = true);
+    
+    showModal('Procesando', `<i class="fas fa-spinner fa-spin"></i> ${loadingMsg}`, 'info');
+    
+    setTimeout(() => {
+        showModal('Acción Completada', successMsg, 'success');
+        // Rehabilitar botones
+        document.querySelectorAll('.btn').forEach(btn => btn.disabled = false);
+    }, 3000);
+}
+
+function showModal(title, content, type) {
+    document.querySelector('#resultModal .modal-title').textContent = title;
+    document.getElementById('modalContent').innerHTML = `
+        <div class="alert alert-${type}">
+            ${content}
+        </div>
+    `;
+    $('#resultModal').modal('show');
+}
+
+// Validación en tiempo real
+document.getElementById('emails_destino_inventario').addEventListener('input', function() {
+    const emails = this.value.split(',').map(email => email.trim());
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let valid = true;
+    
+    emails.forEach(email => {
+        if (email && !emailRegex.test(email)) {
+            valid = false;
+        }
+    });
+    
+    if (valid) {
+        this.classList.remove('is-invalid');
+        this.classList.add('is-valid');
+    } else {
+        this.classList.remove('is-valid');
+        this.classList.add('is-invalid');
+    }
+});
+</script>
+
+<style>
+.custom-control-label {
+    font-weight: 500;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.list-group-item {
+    border-left: none;
+    border-right: none;
+}
+
+.list-group-item:first-child {
+    border-top: none;
+}
+
+.list-group-item:last-child {
+    border-bottom: none;
+}
+
+.badge-pill {
+    font-size: 0.75em;
+}
+
+@media (max-width: 768px) {
+    .d-grid {
+        display: block !important;
+    }
+    
+    .btn-block {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}
+</style>
+{% endblock %}

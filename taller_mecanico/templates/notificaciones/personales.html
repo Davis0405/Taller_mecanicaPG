@@ -1,0 +1,360 @@
+<!-- notificaciones/templates/notificaciones/personales.html -->
+{% extends "base.html" %}
+
+{% block title %}Mis Notificaciones - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">🔔 Mis Notificaciones</h2>
+                <div>
+                    <a href="{% url 'configurar_notificaciones_usuario' %}" class="btn btn-light btn-sm">
+                        <i class="fas fa-cog"></i> Configurar
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if notificaciones %}
+                <!-- Filtros rápidos -->
+                <div class="mb-4">
+                    <div class="btn-group" role="group" aria-label="Filtros">
+                        <button type="button" class="btn btn-outline-primary active" data-filter="all">
+                            <i class="fas fa-list"></i> Todas
+                        </button>
+                        <button type="button" class="btn btn-outline-success" data-filter="CONFIRMACION">
+                            <i class="fas fa-check-circle"></i> Confirmaciones
+                        </button>
+                        <button type="button" class="btn btn-outline-warning" data-filter="RECORDATORIO">
+                            <i class="fas fa-bell"></i> Recordatorios
+                        </button>
+                        <button type="button" class="btn btn-outline-info" data-filter="CAMBIO_ESTADO">
+                            <i class="fas fa-exchange-alt"></i> Cambios de Estado
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Lista de notificaciones -->
+                <div class="timeline">
+                    {% for notificacion in notificaciones %}
+                    <div class="timeline-item" data-tipo="{{ notificacion.tipo }}">
+                        <div class="timeline-marker">
+                            {% if notificacion.tipo == 'CONFIRMACION' %}
+                                <div class="timeline-marker-icon bg-success text-white">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            {% elif notificacion.tipo == 'RECORDATORIO' %}
+                                <div class="timeline-marker-icon bg-warning text-white">
+                                    <i class="fas fa-bell"></i>
+                                </div>
+                            {% else %}
+                                <div class="timeline-marker-icon bg-info text-white">
+                                    <i class="fas fa-exchange-alt"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="card border-left-{% if notificacion.tipo == 'CONFIRMACION' %}success{% elif notificacion.tipo == 'RECORDATORIO' %}warning{% else %}info{% endif %}">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-8">
+                                            <h6 class="card-title text-{% if notificacion.tipo == 'CONFIRMACION' %}success{% elif notificacion.tipo == 'RECORDATORIO' %}warning{% else %}info{% endif %}">
+                                                {% if notificacion.tipo == 'CONFIRMACION' %}
+                                                    <i class="fas fa-check-circle"></i> Confirmación de Cita
+                                                {% elif notificacion.tipo == 'RECORDATORIO' %}
+                                                    <i class="fas fa-bell"></i> Recordatorio de Cita
+                                                {% else %}
+                                                    <i class="fas fa-exchange-alt"></i> Cambio de Estado
+                                                {% endif %}
+                                            </h6>
+                                            
+                                            <div class="mb-2">
+                                                <strong>Servicio:</strong> {{ notificacion.cita.servicio.nombre }}<br>
+                                                <strong>Fecha:</strong> {{ notificacion.cita.fecha|date:"l, d M Y" }}<br>
+                                                <strong>Hora:</strong> {{ notificacion.cita.hora_inicio|time:"H:i" }}<br>
+                                                <strong>Vehículo:</strong> {{ notificacion.cita.vehiculo.marca }} {{ notificacion.cita.vehiculo.modelo }} ({{ notificacion.cita.vehiculo.placa }})
+                                            </div>
+                                            
+                                            {% if notificacion.mensaje %}
+                                            <div class="alert alert-light mb-2">
+                                                <small>{{ notificacion.mensaje }}</small>
+                                            </div>
+                                            {% endif %}
+                                            
+                                            <div class="d-flex align-items-center">
+                                                <small class="text-muted mr-3">
+                                                    <i class="fas fa-clock"></i> {{ notificacion.fecha_envio|date:"d M Y H:i" }}
+                                                </small>
+                                                
+                                                {% if notificacion.enviado %}
+                                                    <span class="badge badge-success badge-sm">
+                                                        <i class="fas fa-check"></i> Email enviado
+                                                    </span>
+                                                {% else %}
+                                                    <span class="badge badge-secondary badge-sm">
+                                                        <i class="fas fa-info-circle"></i> Solo notificación interna
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="col-md-4 text-right">
+                                            <div class="mb-2">
+                                                <span class="badge badge-{% if notificacion.cita.estado == 'COMPLETADA' %}success{% elif notificacion.cita.estado == 'CONFIRMADA' %}info{% elif notificacion.cita.estado == 'CANCELADA' %}danger{% else %}warning{% endif %} badge-lg">
+                                                    {{ notificacion.cita.get_estado_display }}
+                                                </span>
+                                            </div>
+                                            
+                                            <div class="btn-group-vertical">
+                                                <a href="{% url 'detalle_cita' notificacion.cita.id %}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye"></i> Ver Cita
+                                                </a>
+                                                
+                                                {% if notificacion.cita.estado == 'PENDIENTE' or notificacion.cita.estado == 'CONFIRMADA' %}
+                                                    {% if notificacion.cita.fecha >= today %}
+                                                        <a href="{% url 'cancelar_cita' notificacion.cita.id %}" class="btn btn-sm btn-outline-danger">
+                                                            <i class="fas fa-times"></i> Cancelar
+                                                        </a>
+                                                    {% endif %}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                {% else %}
+                <!-- Estado vacío -->
+                <div class="text-center py-5">
+                    <i class="fas fa-bell-slash fa-5x text-muted mb-4"></i>
+                    <h3 class="text-muted">No tienes notificaciones</h3>
+                    <p class="text-muted mb-4">
+                        Cuando tengas citas programadas, recibirás notificaciones de confirmación,<br>
+                        recordatorios y actualizaciones de estado aquí.
+                    </p>
+                    <div>
+                        <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Agendar Primera Cita
+                        </a>
+                        <a href="{% url 'configurar_notificaciones_usuario' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-cog"></i> Configurar Notificaciones
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información sobre notificaciones -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Acerca de las Notificaciones</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-check-circle text-success"></i> Confirmaciones</h6>
+                        <p class="small text-muted">
+                            Recibirás una confirmación inmediata cuando agendes una cita o cuando el staff confirme tu cita.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-bell text-warning"></i> Recordatorios</h6>
+                        <p class="small text-muted">
+                            Te enviaremos recordatorios 24 horas antes de tu cita para que no olvides tu servicio.
+                        </p>
+                    </div>
+                    <div class="col-md-4">
+                        <h6><i class="fas fa-exchange-alt text-info"></i> Cambios de Estado</h6>
+                        <p class="small text-muted">
+                            Te notificaremos cuando el estado de tu cita cambie (completada, reprogramada, etc.).
+                        </p>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-envelope text-primary"></i> Notificaciones por Email</h6>
+                        <p class="small text-muted">
+                            Asegúrate de tener tu email actualizado en tu perfil para recibir notificaciones por correo electrónico.
+                        </p>
+                        <a href="{% url 'profile' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-user-edit"></i> Actualizar Perfil
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><i class="fas fa-cog text-secondary"></i> Personalizar Notificaciones</h6>
+                        <p class="small text-muted">
+                            Puedes configurar qué tipos de notificaciones quieres recibir y cómo recibirlas.
+                        </p>
+                        <a href="{% url 'configurar_notificaciones_usuario' %}" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-cog"></i> Configurar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Timeline styles */
+.timeline {
+    position: relative;
+    padding-left: 3rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 1.5rem;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background: #e9ecef;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -3rem;
+    top: 0.5rem;
+}
+
+.timeline-marker-icon {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px #e9ecef;
+}
+
+.timeline-content {
+    margin-left: 1rem;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #28a745 !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #ffc107 !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #17a2b8 !important;
+}
+
+.badge-lg {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+}
+
+/* Animaciones */
+.timeline-item {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Stagger animation */
+.timeline-item:nth-child(1) { animation-delay: 0.1s; }
+.timeline-item:nth-child(2) { animation-delay: 0.2s; }
+.timeline-item:nth-child(3) { animation-delay: 0.3s; }
+.timeline-item:nth-child(4) { animation-delay: 0.4s; }
+.timeline-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Responsive */
+@media (max-width: 768px) {
+    .timeline {
+        padding-left: 1.5rem;
+    }
+    
+    .timeline-marker {
+        left: -1.5rem;
+    }
+    
+    .timeline-marker-icon {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+    }
+    
+    .timeline-content {
+        margin-left: 0.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Sistema de filtros
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const timelineItems = document.querySelectorAll('.timeline-item');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Actualizar botones activos
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+            
+            const filterValue = this.getAttribute('data-filter');
+            
+            // Filtrar elementos
+            timelineItems.forEach(item => {
+                const itemType = item.getAttribute('data-tipo');
+                
+                if (filterValue === 'all' || itemType === filterValue) {
+                    item.style.display = 'block';
+                    // Reiniciar animación
+                    item.style.animation = 'none';
+                    setTimeout(() => {
+                        item.style.animation = 'fadeInUp 0.5s ease forwards';
+                    }, 10);
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Marcar notificaciones como leídas (simulado)
+    setTimeout(() => {
+        console.log('Notificaciones marcadas como leídas');
+    }, 2000);
+    
+    // Auto-actualizar cada 30 segundos
+    setInterval(() => {
+        // Aquí se podría hacer una llamada AJAX para verificar nuevas notificaciones
+        console.log('Verificando nuevas notificaciones...');
+    }, 30000);
+});
+</script>
+{% endblock %}

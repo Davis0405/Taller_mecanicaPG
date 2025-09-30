@@ -1,0 +1,378 @@
+<!-- vehiculos/templates/vehiculos/por_cliente.html -->
+{% extends "base.html" %}
+
+{% block title %}Vehículos por Cliente - Taller Mecánico{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">👥 Vehículos por Cliente</h2>
+        <div>
+            <a href="{% url 'lista_vehiculos' %}" class="btn btn-light btn-sm">
+                <i class="fas fa-list"></i> Lista General
+            </a>
+            <a href="{% url 'dashboard_vehiculos' %}" class="btn btn-outline-light btn-sm">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        {% if clientes_con_vehiculos %}
+        <!-- Resumen general -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ clientes_con_vehiculos.count }}</h4>
+                        <p class="mb-0">Clientes Activos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>
+                            {% for cliente in clientes_con_vehiculos %}
+                                {% if forloop.first %}{{ cliente.total_vehiculos }}{% endif %}
+                            {% endfor %}
+                        </h4>
+                        <p class="mb-0">Total Vehículos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>
+                            {% for cliente in clientes_con_vehiculos %}
+                                {% if forloop.first %}{{ cliente.total_servicios }}{% endif %}
+                            {% endfor %}
+                        </h4>
+                        <p class="mb-0">Total Servicios</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h4>
+                            Q{% for cliente in clientes_con_vehiculos %}{% if forloop.first %}{{ cliente.gasto_total|default:0|floatformat:0 }}{% endif %}{% endfor %}
+                        </h4>
+                        <p class="mb-0">Ingresos Totales</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lista de clientes con sus vehículos -->
+        <div class="accordion" id="clientesAccordion">
+            {% for cliente in clientes_con_vehiculos %}
+            <div class="card mb-2">
+                <div class="card-header" id="heading{{ cliente.id }}">
+                    <div class="row align-items-center">
+                        <div class="col-md-4">
+                            <h5 class="mb-0">
+                                <button class="btn btn-link text-left p-0" type="button" 
+                                        data-toggle="collapse" data-target="#collapse{{ cliente.id }}"
+                                        aria-expanded="false" aria-controls="collapse{{ cliente.id }}">
+                                    <i class="fas fa-user text-primary mr-2"></i>
+                                    <strong>{{ cliente.get_full_name|default:cliente.username }}</strong>
+                                    <i class="fas fa-chevron-down text-muted ml-2"></i>
+                                </button>
+                            </h5>
+                            <small class="text-muted">{{ cliente.email|default:"Sin email" }}</small>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="row text-center">
+                                <div class="col-md-3">
+                                    <span class="badge badge-primary badge-lg">
+                                        {{ cliente.total_vehiculos }} vehículo{{ cliente.total_vehiculos|pluralize }}
+                                    </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge badge-success badge-lg">
+                                        {{ cliente.total_servicios }} servicio{{ cliente.total_servicios|pluralize }}
+                                    </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge badge-warning badge-lg">
+                                        Q{{ cliente.gasto_total|default:0|floatformat:2 }}
+                                    </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="text-muted">
+                                        <i class="fas fa-calendar"></i> Cliente desde {{ cliente.date_joined|date:"M Y" }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="collapse{{ cliente.id }}" class="collapse" 
+                     aria-labelledby="heading{{ cliente.id }}" data-parent="#clientesAccordion">
+                    <div class="card-body">
+                        {% if cliente.vehiculos.all %}
+                        <div class="row">
+                            {% for vehiculo in cliente.vehiculos.all %}
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-left-info">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-md-2 text-center">
+                                                <i class="fas fa-car fa-2x text-info"></i>
+                                            </div>
+                                            <div class="col-md-7">
+                                                <h6 class="font-weight-bold text-primary mb-1">
+                                                    {{ vehiculo.marca }} {{ vehiculo.modelo }}
+                                                </h6>
+                                                <p class="mb-1">
+                                                    <small>
+                                                        <i class="fas fa-hashtag text-muted"></i> {{ vehiculo.placa }} |
+                                                        <i class="fas fa-calendar text-muted"></i> {{ vehiculo.año }} |
+                                                        <i class="fas fa-palette text-muted"></i> {{ vehiculo.color }}
+                                                    </small>
+                                                </p>
+                                                <div class="d-flex justify-content-between">
+                                                    <small class="text-success">
+                                                        <i class="fas fa-tools"></i> {{ vehiculo.citas.count }} servicios
+                                                    </small>
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-clock"></i> 
+                                                        {% with ultimo_servicio=vehiculo.citas.first %}
+                                                            {% if ultimo_servicio %}
+                                                                {{ ultimo_servicio.fecha|timesince }}
+                                                            {% else %}
+                                                                Sin servicios
+                                                            {% endif %}
+                                                        {% endwith %}
+                                                    </small>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="btn-group-vertical d-grid gap-1">
+                                                    <a href="{% url 'detalle_vehiculo_completo' vehiculo.id %}" 
+                                                       class="btn btn-info btn-sm">
+                                                        <i class="fas fa-eye"></i> Ver
+                                                    </a>
+                                                    <a href="{% url 'historial_servicios_vehiculo' vehiculo.id %}" 
+                                                       class="btn btn-success btn-sm">
+                                                        <i class="fas fa-history"></i> Historial
+                                                    </a>
+                                                    <a href="{% url 'seleccionar_fecha_hora' %}" 
+                                                       class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-calendar-plus"></i> Cita
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Últimos servicios del vehículo -->
+                                        {% with ultimos_servicios=vehiculo.citas.all|slice:":3" %}
+                                            {% if ultimos_servicios %}
+                                            <div class="mt-3 pt-2 border-top">
+                                                <h6 class="text-muted mb-2">
+                                                    <i class="fas fa-history"></i> Últimos Servicios:
+                                                </h6>
+                                                {% for servicio in ultimos_servicios %}
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="text-sm">
+                                                        <span class="badge badge-{% if servicio.servicio.categoria == 'MECANICO' %}primary{% else %}success{% endif %} badge-sm">
+                                                            {{ servicio.servicio.nombre }}
+                                                        </span>
+                                                    </span>
+                                                    <small class="text-muted">
+                                                        {{ servicio.fecha|date:"d/m/Y" }} - Q{{ servicio.servicio.precio }}
+                                                    </small>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <!-- Resumen del cliente -->
+                        <div class="alert alert-light mt-3">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <h6 class="text-primary">
+                                        <i class="fas fa-chart-line"></i> Promedio por Servicio
+                                    </h6>
+                                    <h4 class="text-success">
+                                        {% if cliente.total_servicios > 0 %}
+                                            Q{{ cliente.gasto_total|div:cliente.total_servicios|floatformat:2 }}
+                                        {% else %}
+                                            Q0.00
+                                        {% endif %}
+                                    </h4>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-info">
+                                        <i class="fas fa-star"></i> Cliente Desde
+                                    </h6>
+                                    <h4 class="text-primary">
+                                        {{ cliente.date_joined|timesince }}
+                                    </h4>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-warning">
+                                        <i class="fas fa-trophy"></i> Tipo Cliente
+                                    </h6>
+                                    <h4 class="text-warning">
+                                        {% if cliente.gasto_total > 1000 %}
+                                            VIP
+                                        {% elif cliente.gasto_total > 500 %}
+                                            Premium
+                                        {% elif cliente.total_servicios > 3 %}
+                                            Regular
+                                        {% else %}
+                                            Nuevo
+                                        {% endif %}
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Acciones para el cliente -->
+                        <div class="text-center">
+                            <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-primary">
+                                <i class="fas fa-calendar-plus"></i> Nueva Cita para Cliente
+                            </a>
+                            <a href="{% url 'agregar_vehiculo' %}" class="btn btn-success">
+                                <i class="fas fa-car"></i> Agregar Vehículo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <!-- Estado vacío -->
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-5x text-muted mb-4"></i>
+            <h3 class="text-muted">No hay clientes con vehículos</h3>
+            <p class="text-muted">Los clientes que registren vehículos aparecerán aquí</p>
+            <a href="{% url 'agregar_vehiculo' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Registrar Primer Vehículo
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Información adicional -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Gestión de Clientes y Vehículos</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-search text-info"></i> Búsqueda Rápida</h6>
+                        <p class="small text-muted">Usa el buscador del navegador (Ctrl+F) para encontrar un cliente específico</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-chart-bar text-info"></i> Análisis de Clientes</h6>
+                        <p class="small text-muted">Identifica clientes VIP y patrones de servicio</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-calendar-check text-info"></i> Seguimiento</h6>
+                        <p class="small text-muted">Programa mantenimientos preventivos basados en historial</p>
+                    </div>
+                    <div class="col-md-3">
+                        <h6><i class="fas fa-envelope text-info"></i> Comunicación</h6>
+                        <p class="small text-muted">Mantén contacto con clientes para recordatorios de servicio</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.border-left-info {
+    border-left: 0.25rem solid #17a2b8 !important;
+}
+
+.badge-lg {
+    font-size: 0.9em;
+    padding: 0.5rem 0.75rem;
+}
+
+.card .btn-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.card .btn-link:hover {
+    text-decoration: none;
+}
+
+@media print {
+    .btn, .card-header .btn {
+        display: none !important;
+    }
+    
+    .collapse {
+        display: block !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-expandir el primer cliente si hay pocos
+    const totalClientes = {{ clientes_con_vehiculos.count }};
+    if (totalClientes <= 3) {
+        const primerCliente = document.querySelector('[data-target^="#collapse"]');
+        if (primerCliente) {
+            primerCliente.click();
+        }
+    }
+    
+    // Función para expandir/colapsar todos los clientes
+    function toggleAllClients(expand) {
+        const collapses = document.querySelectorAll('[id^="collapse"]');
+        collapses.forEach(collapse => {
+            if (expand) {
+                $(collapse).collapse('show');
+            } else {
+                $(collapse).collapse('hide');
+            }
+        });
+    }
+    
+    // Agregar botones para expandir/colapsar todos (si hay más de 2 clientes)
+    if (totalClientes > 2) {
+        const cardHeader = document.querySelector('.card-header');
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'btn-group btn-group-sm ml-2';
+        buttonGroup.innerHTML = `
+            <button type="button" class="btn btn-outline-light" onclick="toggleAllClients(true)">
+                <i class="fas fa-expand-arrows-alt"></i> Expandir Todos
+            </button>
+            <button type="button" class="btn btn-outline-light" onclick="toggleAllClients(false)">
+                <i class="fas fa-compress-arrows-alt"></i> Colapsar Todos
+            </button>
+        `;
+        cardHeader.querySelector('div').appendChild(buttonGroup);
+        
+        // Hacer las funciones globales
+        window.toggleAllClients = toggleAllClients;
+    }
+});
+</script>
+{% endblock %}

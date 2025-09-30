@@ -1,0 +1,333 @@
+<!-- vehiculos/templates/vehiculos/historial_servicios.html -->
+{% extends "base.html" %}
+
+{% block title %}Historial de Servicios - {{ vehiculo }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">📋 Historial de Servicios</h2>
+                <div>
+                    <button onclick="window.print()" class="btn btn-light btn-sm">
+                        <i class="fas fa-print"></i> Imprimir
+                    </button>
+                    <a href="{% url 'detalle_vehiculo_completo' vehiculo.id %}" class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+            <div class="card-body">
+                <!-- Información del vehículo -->
+                <div class="alert alert-info mb-4">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <h4><i class="fas fa-car"></i> {{ vehiculo.marca }} {{ vehiculo.modelo }}</h4>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <strong>Placa:</strong> {{ vehiculo.placa }}<br>
+                                    <strong>Color:</strong> {{ vehiculo.color }}
+                                </div>
+                                <div class="col-md-4">
+                                    <strong>Año:</strong> {{ vehiculo.año }}<br>
+                                    <strong>Propietario:</strong> {{ vehiculo.propietario.get_full_name|default:vehiculo.propietario.username }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <!-- Resumen -->
+                            <div class="card bg-white">
+                                <div class="card-body text-center p-3">
+                                    <h5 class="text-primary">Resumen Total</h5>
+                                    <h3 class="text-success">{{ resumen.total_servicios }}</h3>
+                                    <small>Servicios Realizados</small><br>
+                                    <h4 class="text-success">Q{{ resumen.gasto_total|floatformat:2 }}</h4>
+                                    <small>Gasto Total</small><br>
+                                    {% if resumen.gasto_promedio %}
+                                    <h5 class="text-info">Q{{ resumen.gasto_promedio|floatformat:2 }}</h5>
+                                    <small>Promedio por Servicio</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filtros -->
+                <form method="GET" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="categoria"><i class="fas fa-filter"></i> Categoría:</label>
+                                <select id="categoria" name="categoria" class="form-control">
+                                    <option value="">Todas las categorías</option>
+                                    {% for key, value in categorias %}
+                                    <option value="{{ key }}" {% if categoria_filtro == key %}selected{% endif %}>
+                                        {{ value }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="fecha_inicio"><i class="fas fa-calendar"></i> Desde:</label>
+                                <input type="date" id="fecha_inicio" name="fecha_inicio" 
+                                       class="form-control" value="{{ fecha_inicio }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="fecha_fin"><i class="fas fa-calendar"></i> Hasta:</label>
+                                <input type="date" id="fecha_fin" name="fecha_fin" 
+                                       class="form-control" value="{{ fecha_fin }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-group w-100">
+                                <button type="submit" class="btn btn-primary mr-2">
+                                    <i class="fas fa-search"></i> Filtrar
+                                </button>
+                                <a href="{% url 'historial_servicios_vehiculo' vehiculo.id %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times"></i> Limpiar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+                
+                <!-- Tabla de servicios -->
+                {% if servicios %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Fecha</th>
+                                <th><i class="fas fa-clock"></i> Hora</th>
+                                <th><i class="fas fa-tools"></i> Servicio</th>
+                                <th><i class="fas fa-tag"></i> Categoría</th>
+                                <th><i class="fas fa-dollar-sign"></i> Costo</th>
+                                <th><i class="fas fa-user-tie"></i> Atendido Por</th>
+                                <th><i class="fas fa-sticky-note"></i> Notas</th>
+                                <th><i class="fas fa-cogs"></i> Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for servicio in servicios %}
+                            <tr>
+                                <td>
+                                    <strong>{{ servicio.fecha|date:"d M Y" }}</strong><br>
+                                    <small class="text-muted">{{ servicio.fecha|date:"l" }}</small>
+                                </td>
+                                <td>
+                                    <span class="badge badge-secondary">{{ servicio.hora_inicio|time:"H:i" }}</span>
+                                </td>
+                                <td>
+                                    <strong>{{ servicio.servicio.nombre }}</strong>
+                                    {% if servicio.servicio.descripcion %}
+                                    <br><small class="text-muted">{{ servicio.servicio.descripcion|truncatechars:30 }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-{% if servicio.servicio.categoria == 'MECANICO' %}primary{% else %}success{% endif %}">
+                                        {{ servicio.servicio.get_categoria_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <h5 class="text-success mb-0">Q{{ servicio.servicio.precio }}</h5>
+                                </td>
+                                <td>
+                                    {% if servicio.atendida_por %}
+                                        <i class="fas fa-user-check text-success"></i>
+                                        {{ servicio.atendida_por.get_full_name|default:servicio.atendida_por.username }}
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-user-times"></i> No especificado
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if servicio.notas %}
+                                        <button type="button" class="btn btn-sm btn-outline-info" 
+                                                data-toggle="tooltip" data-placement="top" 
+                                                title="{{ servicio.notas|truncatechars:100 }}">
+                                            <i class="fas fa-sticky-note"></i> Ver
+                                        </button>
+                                    {% else %}
+                                        <span class="text-muted">Sin notas</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="{% url 'detalle_cita' servicio.id %}" 
+                                           class="btn btn-sm btn-info" title="Ver detalles">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% if user.is_superuser or user.perfil.rol.nombre == 'Administrador' or user.perfil.rol.nombre == 'Mecánico' %}
+                                        <button type="button" class="btn btn-sm btn-success" 
+                                                data-toggle="modal" data-target="#servicioModal{{ servicio.id }}"
+                                                title="Ver detalles completos">
+                                            <i class="fas fa-clipboard-list"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            
+                            <!-- Modal con detalles del servicio -->
+                            <div class="modal fade" id="servicioModal{{ servicio.id }}" tabindex="-1" role="dialog">
+                                <div class="modal-dialog modal-lg" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header bg-primary text-white">
+                                            <h5 class="modal-title">
+                                                <i class="fas fa-clipboard-list"></i> Detalles del Servicio
+                                            </h5>
+                                            <button type="button" class="close text-white" data-dismiss="modal">
+                                                <span>&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <h6><i class="fas fa-info-circle text-primary"></i> Información General</h6>
+                                                    <table class="table table-sm">
+                                                        <tr>
+                                                            <th>Fecha:</th>
+                                                            <td>{{ servicio.fecha|date:"d/m/Y" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Hora:</th>
+                                                            <td>{{ servicio.hora_inicio|time:"H:i" }} - {{ servicio.hora_fin|time:"H:i" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Servicio:</th>
+                                                            <td>{{ servicio.servicio.nombre }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Categoría:</th>
+                                                            <td>{{ servicio.servicio.get_categoria_display }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Costo:</th>
+                                                            <td><strong class="text-success">Q{{ servicio.servicio.precio }}</strong></td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <h6><i class="fas fa-users text-info"></i> Personal</h6>
+                                                    <table class="table table-sm">
+                                                        <tr>
+                                                            <th>Atendido por:</th>
+                                                            <td>{{ servicio.atendida_por.get_full_name|default:servicio.atendida_por.username|default:"No especificado" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Fecha creación:</th>
+                                                            <td>{{ servicio.creada_el|date:"d/m/Y H:i" }}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <th>Última actualización:</th>
+                                                            <td>{{ servicio.actualizada_el|date:"d/m/Y H:i" }}</td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            
+                                            {% if servicio.notas %}
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <h6><i class="fas fa-sticky-note text-warning"></i> Notas del Servicio</h6>
+                                                    <div class="alert alert-light">
+                                                        {{ servicio.notas|linebreaks }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="modal-footer">
+                                            <a href="{% url 'detalle_cita' servicio.id %}" class="btn btn-primary">
+                                                Ver Cita Completa
+                                            </a>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                                                Cerrar
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-light">
+                                <th colspan="4" class="text-right">TOTALES:</th>
+                                <th class="text-success">Q{{ resumen.gasto_total|floatformat:2 }}</th>
+                                <th colspan="3">{{ resumen.total_servicios }} servicio{{ resumen.total_servicios|pluralize }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-tools fa-5x text-muted mb-4"></i>
+                    <h3 class="text-muted">No se encontraron servicios</h3>
+                    {% if categoria_filtro or fecha_inicio or fecha_fin %}
+                    <p class="text-muted">No hay servicios que coincidan con los filtros seleccionados.</p>
+                    <a href="{% url 'historial_servicios_vehiculo' vehiculo.id %}" class="btn btn-outline-primary">
+                        Ver todos los servicios
+                    </a>
+                    {% else %}
+                    <p class="text-muted">Este vehículo aún no tiene servicios registrados.</p>
+                    <a href="{% url 'seleccionar_fecha_hora' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Agendar Primer Servicio
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Función para imprimir solo el contenido relevante
+    const originalPrint = window.print;
+    window.print = function() {
+        const printButton = document.querySelector('button[onclick="window.print()"]');
+        const backButton = document.querySelector('a[href*="detalle_vehiculo"]');
+        
+        // Ocultar botones para la impresión
+        if (printButton) printButton.style.display = 'none';
+        if (backButton) backButton.style.display = 'none';
+        
+        originalPrint.call(window);
+        
+        // Restaurar botones después de imprimir
+        setTimeout(() => {
+            if (printButton) printButton.style.display = '';
+            if (backButton) backButton.style.display = '';
+        }, 1000);
+    };
+});
+</script>
+
+<style>
+@media print {
+    .btn, .card-header .btn {
+        display: none !important;
+    }
+    
+    .modal {
+        display: none !important;
+    }
+    
+    .table th, .table td {
+        font-size: 12px !important;
+        padding: 5px !important;
+    }
+}
+</style>
+{% endblock %}

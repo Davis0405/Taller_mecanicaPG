@@ -1,0 +1,607 @@
+<!-- reportes/templates/reportes/ingresos.html -->
+{% extends "base.html" %}
+
+{% block title %}Reporte de Ingresos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h2 class="mb-0">💰 Reporte de Ingresos</h2>
+        <div>
+            <button onclick="window.print()" class="btn btn-dark btn-sm">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            <a href="{% url 'dashboard_reportes' %}" class="btn btn-outline-dark btn-sm">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <div class="card-body">
+        <!-- Filtros -->
+        <form method="GET" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="fecha_inicio">Fecha Inicio:</label>
+                        <input type="date" id="fecha_inicio" name="fecha_inicio" 
+                               class="form-control" value="{{ fecha_inicio|date:'Y-m-d' }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="fecha_fin">Fecha Fin:</label>
+                        <input type="date" id="fecha_fin" name="fecha_fin" 
+                               class="form-control" value="{{ fecha_fin|date:'Y-m-d' }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" name="categoria" class="form-control">
+                            <option value="">Todas las categorías</option>
+                            {% for key, value in categorias %}
+                            <option value="{{ key }}" {% if categoria_filtro == key %}selected{% endif %}>
+                                {{ value }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary mr-2">Filtrar</button>
+                    <a href="{% url 'reporte_ingresos' %}" class="btn btn-outline-secondary">Limpiar</a>
+                </div>
+            </div>
+        </form>
+        
+        <!-- Período del reporte -->
+        <div class="alert alert-info mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-1">
+                        <i class="fas fa-calendar-alt"></i> Período del Reporte
+                    </h5>
+                    <p class="mb-0">
+                        <strong>{{ fecha_inicio|date:"d M Y" }}</strong> hasta <strong>{{ fecha_fin|date:"d M Y" }}</strong>
+                        {% if categoria_filtro %}
+                        | Categoría: <strong>{{ categorias|lookup:categoria_filtro }}</strong>
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="col-md-4 text-right">
+                    <h3 class="text-success mb-0">Q{{ totales.total_ingresos|floatformat:2 }}</h3>
+                    <small class="text-muted">Ingresos Totales</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Resumen ejecutivo -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ totales.total_ingresos|floatformat:2 }}</h4>
+                        <p class="mb-0">Total Ingresos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ totales.total_citas }}</h4>
+                        <p class="mb-0">Servicios Realizados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>Q{{ totales.promedio_por_cita|floatformat:2 }}</h4>
+                        <p class="mb-0">Promedio por Servicio</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <h4>
+                            {% if ingresos_diarios %}
+                                Q{{ totales.total_ingresos|div:ingresos_diarios|length|floatformat:2 }}
+                            {% else %}
+                                Q0.00
+                            {% endif %}
+                        </h4>
+                        <p class="mb-0">Promedio Diario</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ingresos por categoría -->
+        {% if ingresos_por_categoria %}
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Ingresos por Categoría</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Categoría</th>
+                                        <th>Servicios</th>
+                                        <th>Ingresos</th>
+                                        <th>% del Total</th>
+                                        <th>Promedio</th>
+                                        <th>Gráfico</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for categoria in ingresos_por_categoria %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-{% if categoria.servicio__categoria == 'MECANICO' %}primary{% else %}success{% endif %} badge-lg">
+                                                {% if categoria.servicio__categoria == 'MECANICO' %}
+                                                    <i class="fas fa-tools"></i> Mecánico
+                                                {% else %}
+                                                    <i class="fas fa-car-wash"></i> Carwash
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-info">{{ categoria.total_citas }}</span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">Q{{ categoria.total_ingresos|floatformat:2 }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-primary">
+                                                {% if totales.total_ingresos > 0 %}
+                                                    {{ categoria.total_ingresos|mul:100|div:totales.total_ingresos|floatformat:1 }}%
+                                                {% else %}
+                                                    0%
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-info">
+                                                Q{{ categoria.total_ingresos|div:categoria.total_citas|floatformat:2 }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 20px;">
+                                                <div class="progress-bar bg-{% if categoria.servicio__categoria == 'MECANICO' %}primary{% else %}success{% endif %}" 
+                                                     style="width: {% if totales.total_ingresos > 0 %}{% widthratio categoria.total_ingresos totales.total_ingresos 100 %}{% else %}0{% endif %}%">
+                                                    Q{{ categoria.total_ingresos|floatformat:0 }}
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Distribución</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoCategoria" height="150"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Servicios más rentables -->
+        {% if ingresos_por_servicio %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-star"></i> Top 10 Servicios Más Rentables</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Posición</th>
+                                        <th>Servicio</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Veces Realizado</th>
+                                        <th>Ingresos Totales</th>
+                                        <th>% del Total</th>
+                                        <th>Rentabilidad</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for servicio in ingresos_por_servicio %}
+                                    <tr>
+                                        <td>
+                                            <span class="badge badge-{% if forloop.counter <= 3 %}warning{% else %}secondary{% endif %} badge-lg">
+                                                {% if forloop.counter == 1 %}
+                                                    <i class="fas fa-trophy"></i>
+                                                {% elif forloop.counter == 2 %}
+                                                    <i class="fas fa-medal"></i>
+                                                {% elif forloop.counter == 3 %}
+                                                    <i class="fas fa-award"></i>
+                                                {% endif %}
+                                                #{{ forloop.counter }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <strong>{{ servicio.servicio__nombre }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-info">Q{{ servicio.servicio__precio }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-primary">{{ servicio.total_citas }}x</span>
+                                        </td>
+                                        <td>
+                                            <strong class="text-success">Q{{ servicio.total_ingresos|floatformat:2 }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="text-primary">
+                                                {% if totales.total_ingresos > 0 %}
+                                                    {{ servicio.total_ingresos|mul:100|div:totales.total_ingresos|floatformat:1 }}%
+                                                {% else %}
+                                                    0%
+                                                {% endif %}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <div class="progress" style="height: 15px;">
+                                                <div class="progress-bar bg-success" 
+                                                     style="width: {% if ingresos_por_servicio.0.total_ingresos > 0 %}{% widthratio servicio.total_ingresos ingresos_por_servicio.0.total_ingresos 100 %}{% else %}0{% endif %}%">
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Tendencia diaria -->
+        {% if ingresos_diarios %}
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-line"></i> Tendencia Diaria de Ingresos</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="graficoTendencia" height="80"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Análisis de rendimiento -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-calculator"></i> Análisis de Rendimiento</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                    <span><i class="fas fa-chart-line text-success"></i> Mejor día:</span>
+                                    <strong class="text-success">
+                                        {% if ingresos_diarios %}
+                                            {% for dia in ingresos_diarios %}
+                                                {% if forloop.first %}
+                                                    {{ dia.dia|date:"d M" }} - Q{{ dia.ingresos_dia|floatformat:2 }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% else %}
+                                            No disponible
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                    <span><i class="fas fa-calendar-check text-info"></i> Días con servicios:</span>
+                                    <strong class="text-info">{{ ingresos_diarios|length }} días</strong>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                    <span><i class="fas fa-percentage text-warning"></i> Eficiencia diaria:</span>
+                                    <strong class="text-warning">
+                                        {% if ingresos_diarios %}
+                                            {{ ingresos_diarios|length|mul:100|div:30|floatformat:1 }}%
+                                        {% else %}
+                                            0%
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span><i class="fas fa-star text-primary"></i> Servicio estrella:</span>
+                                    <strong class="text-primary">
+                                        {% if ingresos_por_servicio %}
+                                            {{ ingresos_por_servicio.0.servicio__nombre|truncatechars:20 }}
+                                        {% else %}
+                                            No disponible
+                                        {% endif %}
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-target"></i> Metas y Proyecciones</h5>
+                    </div>
+                    <div class="card-body">
+                        {% with meta_mensual=5000 %}
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Meta Mensual</span>
+                                <span><strong>Q{{ meta_mensual }}</strong></span>
+                            </div>
+                            <div class="progress mb-2">
+                                <div class="progress-bar bg-success" 
+                                     style="width: {% if meta_mensual > 0 %}{% widthratio totales.total_ingresos meta_mensual 100 %}{% else %}0{% endif %}%">
+                                    {{ totales.total_ingresos|mul:100|div:meta_mensual|floatformat:1 }}%
+                                </div>
+                            </div>
+                            <small class="text-muted">
+                                {% if totales.total_ingresos >= meta_mensual %}
+                                    <i class="fas fa-check-circle text-success"></i> ¡Meta alcanzada!
+                                {% else %}
+                                    <i class="fas fa-clock text-warning"></i> 
+                                    Faltan Q{{ meta_mensual|sub:totales.total_ingresos|floatformat:2 }} para la meta
+                                {% endif %}
+                            </small>
+                        </div>
+                        {% endwith %}
+                        
+                        <div class="text-center">
+                            <h6 class="text-muted">Proyección Mensual</h6>
+                            {% if ingresos_diarios %}
+                            <h3 class="text-primary">
+                                Q{{ totales.total_ingresos|div:ingresos_diarios|length|mul:30|floatformat:2 }}
+                            </h3>
+                            <small class="text-muted">Basado en el promedio diario actual</small>
+                            {% else %}
+                            <h3 class="text-muted">No disponible</h3>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones adicionales -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-tools"></i> Acciones Adicionales</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <a href="{% url 'reporte_citas' %}?estado=COMPLETADA" class="btn btn-success btn-block">
+                            <i class="fas fa-check-circle"></i><br>Servicios Completados
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'calendario_citas' %}" class="btn btn-primary btn-block">
+                            <i class="fas fa-calendar"></i><br>Ver Calendario
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="{% url 'lista_servicios' %}" class="btn btn-info btn-block">
+                            <i class="fas fa-cogs"></i><br>Gestionar Servicios
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button onclick="window.print()" class="btn btn-secondary btn-block">
+                            <i class="fas fa-file-pdf"></i><br>Exportar PDF
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts para gráficos -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Gráfico de categorías
+    {% if ingresos_por_categoria %}
+    const ctxCategoria = document.getElementById('graficoCategoria').getContext('2d');
+    
+    const categoriaData = [
+        {% for categoria in ingresos_por_categoria %}
+        {
+            label: '{% if categoria.servicio__categoria == "MECANICO" %}Mecánico{% else %}Carwash{% endif %}',
+            value: {{ categoria.total_ingresos }},
+            color: '{% if categoria.servicio__categoria == "MECANICO" %}rgba(54, 162, 235, 0.8){% else %}rgba(75, 192, 192, 0.8){% endif %}'
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    new Chart(ctxCategoria, {
+        type: 'doughnut',
+        data: {
+            labels: categoriaData.map(item => item.label),
+            datasets: [{
+                data: categoriaData.map(item => item.value),
+                backgroundColor: categoriaData.map(item => item.color),
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return context.label + ': Q' + context.parsed.toFixed(2);
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+    
+    // Gráfico de tendencia diaria
+    {% if ingresos_diarios %}
+    const ctxTendencia = document.getElementById('graficoTendencia').getContext('2d');
+    
+    const tendenciaData = {
+        labels: [
+            {% for dia in ingresos_diarios %}
+            '{{ dia.dia|date:"d M" }}'{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        ],
+        datasets: [{
+            label: 'Ingresos Diarios (Q)',
+            data: [
+                {% for dia in ingresos_diarios %}
+                {{ dia.ingresos_dia }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            borderColor: 'rgb(75, 192, 192)',
+            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+            tension: 0.4,
+            fill: true
+        }, {
+            label: 'Servicios por Día',
+            data: [
+                {% for dia in ingresos_diarios %}
+                {{ dia.citas_dia }}{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+            tension: 0.4,
+            yAxisID: 'y1'
+        }]
+    };
+    
+    new Chart(ctxTendencia, {
+        type: 'line',
+        data: tendenciaData,
+        options: {
+            responsive: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Fecha'
+                    }
+                },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'Ingresos (Q)'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return 'Q' + value.toFixed(2);
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'Número de Servicios'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            if (context.datasetIndex === 0) {
+                                return 'Ingresos: Q' + context.parsed.y.toFixed(2);
+                            } else {
+                                return 'Servicios: ' + context.parsed.y;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    });
+    {% endif %}
+});
+</script>
+
+<style>
+.badge-lg {
+    font-size: 0.9em;
+    padding: 0.5rem 0.75rem;
+}
+
+@media print {
+    .btn, .card-header .btn {
+        display: none !important;
+    }
+    
+    canvas {
+        max-width: 100% !important;
+        height: auto !important;
+    }
+    
+    .table th, .table td {
+        font-size: 11px !important;
+        padding: 4px !important;
+    }
+    
+    .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        margin-bottom: 1rem !important;
+    }
+}
+</style>
+{% endblock %}

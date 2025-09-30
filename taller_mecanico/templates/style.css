@@ -1,0 +1,417 @@
+:root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --accent-color: #f59e0b;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --dark-color: #1e293b;
+            --light-color: #f8f9fc;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #040f3d 0%, #764ba2 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* Overlay para el fondo */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            z-index: -1;
+        }
+
+        /* Navbar mejorado */
+        .navbar {
+            background: rgba(30, 41, 59, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: var(--box-shadow-lg);
+            transition: all 0.3s ease;
+            padding: 0.75rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white !important;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .navbar-brand:hover {
+            color: var(--accent-color) !important;
+            transform: translateY(-1px);
+        }
+
+        .navbar-brand i {
+            font-size: 1.8rem;
+            color: var(--accent-color);
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .navbar-nav .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            margin: 0 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .navbar-nav .nav-link:hover {
+            color: white !important;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .navbar-nav .nav-link i {
+            font-size: 1.1rem;
+        }
+
+        /* Dropdown mejorado */
+        .dropdown-menu {
+            background: rgba(255, 255, 255, 0.98) !important;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.1) !important;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow-lg);
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            min-width: 250px;
+        }
+
+        .dropdown-item {
+            border-radius: 8px !important;
+            padding: 0.75rem 1rem !important;
+            transition: all 0.3s ease !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            font-weight: 500 !important;
+            color: #1e293b !important;
+            background: transparent !important;
+            text-decoration: none !important;
+        }
+
+        .dropdown-item:hover,
+        .dropdown-item:focus {
+            background: var(--primary-color) !important;
+            color: white !important;
+            transform: translateX(5px);
+            text-decoration: none !important;
+        }
+
+        .dropdown-item:active {
+            background: var(--primary-color) !important;
+            color: white !important;
+        }
+
+        .dropdown-item i {
+            width: 20px !important;
+            text-align: center !important;
+            opacity: 0.8 !important;
+            color: inherit !important;
+        }
+
+        .dropdown-header {
+            font-weight: 600 !important;
+            color: var(--secondary-color) !important;
+            text-transform: uppercase !important;
+            font-size: 0.75rem !important;
+            letter-spacing: 0.5px !important;
+            padding: 0.5rem 1rem 0.25rem !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            background: transparent !important;
+        }
+
+        .dropdown-divider {
+            margin: 0.5rem 0 !important;
+            opacity: 0.3 !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Asegurar que los textos pequeños también sean visibles */
+        .dropdown-item small {
+            color: rgba(0, 0, 0, 0.6) !important;
+        }
+
+        .dropdown-item:hover small,
+        .dropdown-item:focus small {
+            color: rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* Estilos específicos para enlaces de texto */
+        .dropdown-item .text-muted {
+            color: rgba(0, 0, 0, 0.5) !important;
+        }
+
+        .dropdown-item:hover .text-muted,
+        .dropdown-item:focus .text-muted {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+
+        .dropdown-item .text-primary {
+            color: var(--primary-color) !important;
+        }
+
+        .dropdown-item:hover .text-primary,
+        .dropdown-item:focus .text-primary {
+            color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        /* Contenedor principal */
+        .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Mensajes mejorados */
+        .alert {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            backdrop-filter: blur(10px);
+            font-weight: 500;
+            border-left: 4px solid;
+            animation: slideInDown 0.5s ease;
+        }
+
+        @keyframes slideInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+            border-left-color: var(--success-color);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+            border-left-color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+            border-left-color: var(--warning-color);
+        }
+
+        .alert-info {
+            background: rgba(37, 99, 235, 0.1);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+
+        /* Tarjetas mejoradas */
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--box-shadow-lg);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 1.25rem;
+        }
+
+        /* Botones mejorados */
+        .btn {
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.625rem 1.25rem;
+            transition: all 0.3s ease;
+            border: none;
+            text-transform: capitalize;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #d97706);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-color), #dc2626);
+        }
+
+        /* Badge para notificaciones */
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        /* Loader para transiciones */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .page-loader.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+            
+            .dropdown-menu {
+                min-width: 200px;
+            }
+            
+            .card {
+                margin-bottom: 1rem;
+            }
+        }
+
+        /* Efectos adicionales */
+        .main-content {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll personalizado */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Efectos hover para elementos interactivos */
+        .interactive-element {
+            transition: all 0.3s ease;
+        }
+
+        .interactive-element:hover {
+            transform: scale(1.02);
+        }
